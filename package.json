@@ -1,0 +1,24 @@
+{
+  "name": "librato-client",
+  "version": "0.0.1",
+  "description": "Send metrics from the browser to Librato",
+  "main": "src/librato.js",
+  "scripts": {
+    "test": "peasant test",
+    "cover": "peasant cover",
+    "lint": "peasant lint",
+    "peasant": "peasant",
+    "ci": "peasant -s lint test build",
+    "prepublish": "npm run ci"
+  },
+  "author": "Luke Thomas",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.4.0",
+    "peasant": "^0.5.2"
+  },
+  "dependencies": {
+    "babel-runtime": "^6.0.14",
+    "ua-parser-js": "^0.7.9"
+  }
+}
