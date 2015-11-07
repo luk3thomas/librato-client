@@ -1,8 +1,3 @@
-# The frontend instrumentation shouldn't contain any third party dependencies.
-# These are convenience functions we're using in the library.
-
-window.Librato = window.Librato or {}
-
 toArray = (d) -> [].slice.call(d)
 
 currify = (fn, args, remaining)->

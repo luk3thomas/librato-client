@@ -1,6 +1,3 @@
-# Uses https://faisalman.github.io/ua-parser-js/ to parse information from the
-# UA string
-
 UAParser = require('ua-parser-js')
 
 class UserAgent

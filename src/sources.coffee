@@ -1,10 +1,3 @@
-# Librato sources lets us create dynamic sources by using easy to read
-# placeholders. e.g.
-#   source: 'browser.version.platform'
-#
-# In the example above `browser`, `version`, and `platform` are replaced with
-# information parsed from the userAgent string.
-
 { toArray } = require('./utils.coffee')
 UserAgent = require('./user-agent.coffee')
 

@@ -1,6 +1,3 @@
-# LibratoClient proxies the instrumentation methods through to
-# Instruments and sends data to the endpoint on completion.
-
 { compact, combineArray } = require('./utils.coffee')
 Sources = require('./sources.coffee')
 Instruments = require('./instruments.coffee')
