@@ -3,22 +3,22 @@
   "version": "0.0.1",
   "description": "Send metrics from the browser to Librato",
   "main": "src/librato.js",
-  "scripts": {
-    "test": "peasant test",
-    "cover": "peasant cover",
-    "lint": "peasant lint",
-    "peasant": "peasant",
-    "ci": "peasant -s lint test build",
-    "prepublish": "npm run ci"
-  },
+  "scripts": {},
   "author": "Luke Thomas",
   "license": "ISC",
   "devDependencies": {
-    "chai": "^3.4.0",
-    "peasant": "^0.5.2"
+    "coffee-loader": "0.7.2",
+    "coffee-script": "1.10.0",
+    "jasmine-core": "2.3.4",
+    "karma": "0.13.15",
+    "karma-jasmine": "0.3.6",
+    "karma-phantomjs-launcher": "0.2.1",
+    "karma-webpack": "1.7.0",
+    "phantomjs": "^1.9.18",
+    "sinon": "github:cjohansen/Sinon.JS#b672042043517b9f84e14ed0fb8265126168778a",
+    "webpack": "1.12.3"
   },
   "dependencies": {
-    "babel-runtime": "^6.0.14",
-    "ua-parser-js": "^0.7.9"
+    "ua-parser-js": "0.7.9"
   }
 }
