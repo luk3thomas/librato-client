@@ -1,20 +1,22 @@
 { curry, isNumber, isEmpty } = require('./utils.coffee')
 
-measure = (type, metric, opts, defaultValue) ->
-  if isNumber(opts)
-    value = opts
-  else
-    { source, value } = opts
-    value ?= defaultValue
+createRequest = (type, metric, opts, defaultValue) ->
+  { source, value = defaultValue } = toOptions(opts)
   { type, metric, source, value }
+
+toOptions = (opts={}) ->
+  if isNumber(opts)
+    value: opts
+  else
+    opts
 
 Instruments =
 
   increment: (fn, metric, opts={}) ->
-    fn.call @, measure('increment', metric, opts, 1)
+    fn.call @, createRequest('increment', metric, opts, 1)
 
   measure: curry (fn, metric, opts={}) ->
-    fn.call @, measure('measure', metric, opts, 0)
+    fn.call @, createRequest('measure', metric, opts, 0)
 
   # TODO allow second param to be a function, like so
   # window.onload = librato.timing 'foo', (e) ->
@@ -26,8 +28,8 @@ Instruments =
       start = +new Date()
       (opts={}) ->
         end = +new Date()
-        fn.call(self, measure('timing', metric, opts, end - start))
+        fn.call(self, createRequest('timing', metric, opts, end - start))
     else
-      fn.call @, measure('timing', metric, opts, 0)
+      fn.call @, createRequest('timing', metric, opts, 0)
 
 module.exports = Instruments
