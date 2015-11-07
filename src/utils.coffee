@@ -19,6 +19,9 @@ Utils =
   isEmpty: (object) ->
     typeof object is 'object' and Object.keys(object).length is 0
 
+  isFunction: (fn) ->
+    typeof fn is 'function'
+
   isNumber: (number) ->
     ( typeof number is 'number' and
       not isNaN(number) )

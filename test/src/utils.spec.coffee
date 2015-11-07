@@ -4,11 +4,11 @@ sinon = require('sinon')
 describe 'Utils', ->
 
   beforeEach ->
-    {
-      @toArray,
+    { @toArray,
       @compact,
       @curry,
       @isEmpty,
+      @isFunction,
       @isNumber,
       @combineArray } = Utils
 
@@ -38,6 +38,13 @@ describe 'Utils', ->
     expect(@isEmpty([]))   .toBe true
     expect(@isEmpty(a: 1)) .toBe false
     expect(@isEmpty([1]))  .toBe false
+
+  it '#isFunction', ->
+    expect(@isFunction({}))   .toBe false
+    expect(@isFunction([]))   .toBe false
+    expect(@isFunction(a: 1)) .toBe false
+    expect(@isFunction([1]))  .toBe false
+    expect(@isFunction(->))   .toBe true
 
   it '#isNumber', ->
     expect(@isNumber(0))     .toBe true
