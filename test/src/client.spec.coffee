@@ -134,23 +134,54 @@ describe 'LibratoClient', ->
       expect(@client.send.args[0][0].value)  .toBe 5
       expect(@client.send.args[0][0].source) .toBeUndefined()
 
-    it '#timing', (done) ->
-      @client.timing 'foo', 5
+    describe '#timing', (done) ->
 
-      expect(@client.send.args.length).toBe 1
+      it 'with options hash', ->
+        @client.timing 'foo', 5
+        @client.timing 'foo', value: 10, source: 'baz'
 
-      expect(@client.send.args[0][0].metric) .toBe 'foo'
-      expect(@client.send.args[0][0].type)   .toBe 'timing'
-      expect(@client.send.args[0][0].value)  .toBe 5
-      expect(@client.send.args[0][0].source) .toBeUndefined()
+        expect(@client.send.args.length).toBe 2
 
-      timer = @client.timing 'async'
+        expect(@client.send.args[0][0].metric) .toBe 'foo'
+        expect(@client.send.args[0][0].type)   .toBe 'timing'
+        expect(@client.send.args[0][0].value)  .toBe 5
+        expect(@client.send.args[0][0].source) .toBeUndefined()
 
-      setTimeout =>
-        timer()
-        expect(@client.send.args[1][0].metric) .toBe 'async'
+        expect(@client.send.args[1][0].metric) .toBe 'foo'
         expect(@client.send.args[1][0].type)   .toBe 'timing'
-        expect(@client.send.args[1][0].value)  .toBeGreaterThan 29
-        expect(@client.send.args[1][0].source) .toBeUndefined()
-        done()
-      , 30
+        expect(@client.send.args[1][0].value)  .toBe 10
+        expect(@client.send.args[1][0].source) .toBe 'baz'
+
+      it 'async with metric', (done) ->
+        timer = @client.timing 'async'
+
+        setTimeout =>
+          timer()
+          expect(@client.send.args[0][0].metric) .toBe 'async'
+          expect(@client.send.args[0][0].type)   .toBe 'timing'
+          expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
+          expect(@client.send.args[0][0].source) .toBeUndefined()
+          done()
+        , 30
+
+      it 'async with callback and metric', (done) ->
+        @client.timing 'async', (d) =>
+          setTimeout =>
+            d()
+            expect(@client.send.args[0][0].metric) .toBe 'async'
+            expect(@client.send.args[0][0].type)   .toBe 'timing'
+            expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
+            expect(@client.send.args[0][0].source) .toBeUndefined()
+            done()
+          , 30
+
+      it 'async with callback only', (done) ->
+        @client.timing (d) =>
+          setTimeout =>
+            d()
+            expect(@client.send.args[0][0].metric) .toBeUndefined()
+            expect(@client.send.args[0][0].type)   .toBe 'timing'
+            expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
+            expect(@client.send.args[0][0].source) .toBeUndefined()
+            done()
+          , 30

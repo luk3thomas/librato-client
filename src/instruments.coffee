@@ -1,4 +1,4 @@
-{ curry, isNumber, isEmpty } = require('./utils.coffee')
+{ curry, isNumber, isEmpty, isFunction } = require('./utils.coffee')
 
 createRequest = (type, metric, opts, defaultValue) ->
   { source, value = defaultValue } = toOptions(opts)
@@ -24,12 +24,28 @@ Instruments =
   #   # completion
   timing: (fn, metric, opts={}) ->
     self = @
-    if isEmpty(opts)
-      start = +new Date()
+    start = +new Date()
+
+    # with a callback
+    if isFunction(opts) or isFunction(metric)
+      if isFunction(metric)
+        callback = metric
+        metric = undefined
+      else
+        callback = opts
+      done = (opts={}) ->
+        end = +new Date()
+        fn.call(self, createRequest('timing', metric, opts, end - start))
+      callback.call(null, done)
+
+    # with a metric name and opts
+    else if not isEmpty(opts) and metric?
+      fn.call @, createRequest('timing', metric, opts, 0)
+
+    # with a metric name only
+    else if isEmpty(opts) and metric?
       (opts={}) ->
         end = +new Date()
         fn.call(self, createRequest('timing', metric, opts, end - start))
-    else
-      fn.call @, createRequest('timing', metric, opts, 0)
 
 module.exports = Instruments
