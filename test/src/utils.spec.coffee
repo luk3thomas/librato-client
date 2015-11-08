@@ -4,13 +4,14 @@ sinon = require('sinon')
 describe 'Utils', ->
 
   beforeEach ->
-    { @toArray,
-      @compact,
-      @curry,
-      @isEmpty,
-      @isFunction,
-      @isNumber,
-      @combineArray } = Utils
+    { @toArray
+    , @compact
+    , @curry
+    , @isEmpty
+    , @isFunction
+    , @isNumber
+    , @extend
+    , @combineArray } = Utils
 
   it '#toArray', ->
     expect(@toArray(arguments)) .toEqual []
@@ -57,3 +58,18 @@ describe 'Utils', ->
 
   it '#combineArray', ->
     expect(@combineArray([1], [2])).toEqual [1, 2]
+
+  it '#extend', ->
+    a  = a: 1
+    b  = b: 1
+    c  = c: 1
+    a2 = a: 2
+
+    expect(@extend(a, b, c, a2)).toEqual a: 2, b: 1, c: 1
+    expect(@extend(a2, b, c, a)).toEqual a: 1, b: 1, c: 1
+    expect(a) .toEqual a: 1
+    expect(b) .toEqual b: 1
+    expect(c) .toEqual c: 1
+    expect(a2).toEqual a: 2
+
+    expect(@extend(a, b: 2)).toEqual a: 1, b: 2

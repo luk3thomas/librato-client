@@ -13,6 +13,12 @@ Utils =
   compact: (array) ->
     array.filter (v) -> v?
 
+  extend: ->
+    toArray(arguments).reduce (result, object) ->
+      result[k] = v for k, v of object
+      result
+    , {}
+
   curry: (fn) ->
     -> currify(fn, toArray(arguments), fn.length - arguments.length)
 
