@@ -1,4 +1,4 @@
-{ compact, combineArray } = require('./utils.coffee')
+{ compact, combineArray, extend } = require('./utils.coffee')
 Sources = require('./sources.coffee')
 Instruments = require('./instruments.coffee')
 
@@ -43,10 +43,7 @@ class LibratoClient
   # Helpful if you want to change the source template for a particular
   # instrumentation, e.g. error exceptions
   fork: (opts={}) ->
-    { endpoint, prefix, headers, source, metric } = @settings
-    settings    = { endpoint, prefix, headers, source, metric }
-    settings[k] = v for k, v of opts
-    new LibratoClient(settings)
+    new LibratoClient(extend(@settings, opts))
 
   source: (source)     -> @fork { source }
   metric: (metric)     -> @fork { metric }
