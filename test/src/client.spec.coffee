@@ -1,16 +1,17 @@
 LibratoClient = require('../../src/librato-client.coffee')
+XHR = require('../../src/xhr.coffee')
 sinon = require('sinon')
 
 describe 'LibratoClient', ->
   beforeEach ->
-    sinon.stub(LibratoClient.prototype, 'xhr').returns
+    sinon.stub(XHR, 'xhr').returns
       open: sinon.spy()
       send: sinon.spy()
       setRequestHeader: sinon.spy()
     @client = new LibratoClient()
 
   afterEach ->
-    LibratoClient.prototype.xhr.restore()
+    XHR.xhr.restore()
 
   it '#send', ->
     data =
@@ -22,23 +23,23 @@ describe 'LibratoClient', ->
     @client = @client.endpoint('/tmp')
     @client.send(data)
 
-    expect(@client.xhr().open.args.length) .toBe 1
-    expect(@client.xhr().open.args[0][0])  .toBe 'POST'
-    expect(@client.xhr().open.args[0][1])  .toBe '/tmp'
-    expect(@client.xhr().open.args[0][2])  .toBe true
+    expect(XHR.xhr().open.args.length) .toBe 1
+    expect(XHR.xhr().open.args[0][0])  .toBe 'POST'
+    expect(XHR.xhr().open.args[0][1])  .toBe '/tmp'
+    expect(XHR.xhr().open.args[0][2])  .toBe true
 
-    expect(@client.xhr().setRequestHeader.args.length) .toBe 1
-    expect(@client.xhr().setRequestHeader.args[0][0])  .toBe 'Content-Type'
-    expect(@client.xhr().setRequestHeader.args[0][1])  .toBe 'application/json'
+    expect(XHR.xhr().setRequestHeader.args.length) .toBe 1
+    expect(XHR.xhr().setRequestHeader.args[0][0])  .toBe 'Content-Type'
+    expect(XHR.xhr().setRequestHeader.args[0][1])  .toBe 'application/json'
 
     @client = @client.headers {'X-TOKEN': 'foo'}
     @client.send(data)
 
-    expect(@client.xhr().setRequestHeader.args.length) .toBe 3
-    expect(@client.xhr().setRequestHeader.args[1][0])  .toBe 'Content-Type',     'With custom headers'
-    expect(@client.xhr().setRequestHeader.args[1][1])  .toBe 'application/json', 'With custom headers'
-    expect(@client.xhr().setRequestHeader.args[2][0])  .toBe 'X-TOKEN',          'With custom headers'
-    expect(@client.xhr().setRequestHeader.args[2][1])  .toBe 'foo',              'With custom headers'
+    expect(XHR.xhr().setRequestHeader.args.length) .toBe 3
+    expect(XHR.xhr().setRequestHeader.args[1][0])  .toBe 'Content-Type',     'With custom headers'
+    expect(XHR.xhr().setRequestHeader.args[1][1])  .toBe 'application/json', 'With custom headers'
+    expect(XHR.xhr().setRequestHeader.args[2][0])  .toBe 'X-TOKEN',          'With custom headers'
+    expect(XHR.xhr().setRequestHeader.args[2][1])  .toBe 'foo',              'With custom headers'
 
     expect(@client.send(data) instanceof LibratoClient).toBe true, 'Chains to self'
 

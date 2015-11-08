@@ -1,5 +1,6 @@
 { compact, combineArray, extend } = require('./utils.coffee')
 Sources = require('./sources.coffee')
+{ post } = require('./xhr.coffee')
 Instruments = require('./instruments.coffee')
 
 class LibratoClient
@@ -28,16 +29,10 @@ class LibratoClient
 
   send: (data) ->
     { endpoint, headers } = @settings
-    json = JSON.stringify(@prepare(data))
-    xhr = @xhr()
-    xhr.open('POST', endpoint, true)
-    xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.setRequestHeader(header, value) for header, value of headers
-    xhr.send(json)
+    post({ endpoint
+         , data: JSON.stringify(@prepare(data))
+         , headers: extend({'Content-Type': 'application/json'}, headers) })
     @
-
-  xhr: ->
-    new XMLHttpRequest()
 
   # creates a new client with the current settings and any new custom options.
   # Helpful if you want to change the source template for a particular
