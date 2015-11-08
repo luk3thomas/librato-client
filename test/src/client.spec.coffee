@@ -3,11 +3,14 @@ sinon = require('sinon')
 
 describe 'LibratoClient', ->
   beforeEach ->
-    @client = new LibratoClient()
-    sinon.stub(@client, 'xhr').returns
+    sinon.stub(LibratoClient.prototype, 'xhr').returns
       open: sinon.spy()
       send: sinon.spy()
       setRequestHeader: sinon.spy()
+    @client = new LibratoClient()
+
+  afterEach ->
+    LibratoClient.prototype.xhr.restore()
 
   it '#send', ->
     data =
@@ -16,7 +19,7 @@ describe 'LibratoClient', ->
       value: 1
       type: 'increment'
 
-    @client.endpoint = '/tmp'
+    @client = @client.endpoint('/tmp')
     @client.send(data)
 
     expect(@client.xhr().open.args.length) .toBe 1
@@ -28,7 +31,7 @@ describe 'LibratoClient', ->
     expect(@client.xhr().setRequestHeader.args[0][0])  .toBe 'Content-Type'
     expect(@client.xhr().setRequestHeader.args[0][1])  .toBe 'application/json'
 
-    @client.headers = {'X-TOKEN': 'foo'}
+    @client = @client.headers {'X-TOKEN': 'foo'}
     @client.send(data)
 
     expect(@client.xhr().setRequestHeader.args.length) .toBe 3
@@ -52,38 +55,81 @@ describe 'LibratoClient', ->
       headers:
         'X-FORK': 'bar'
 
-    expect(@client.endpoint)           .toBe '/original',  'Original client'
-    expect(@client.prefix)             .toBe 'foo',        'Original client'
-    expect(@client.headers['X-FOO'])   .toBe 'bar',        'Original client'
-    expect(@client.headers['X-FORK'])  .toBeUndefined      'Original client'
+    expect(@client.settings.endpoint)           .toBe '/original',  'Original client'
+    expect(@client.settings.prefix)             .toBe 'foo',        'Original client'
+    expect(@client.settings.headers['X-FOO'])   .toBe 'bar',        'Original client'
+    expect(@client.settings.headers['X-FORK'])  .toBeUndefined      'Original client'
 
     expect(@client2).not               .toBe @client,      'Forked client'
-    expect(@client2.endpoint)          .toBe '/forked',    'Forked client'
-    expect(@client2.prefix)            .toBe 'foo.fork',   'Forked client'
-    expect(@client2.headers['X-FORK']) .toBe 'bar',        'Forked client'
-    expect(@client2.headers['X-FOO'])  .toBeUndefined      'Forked client'
+    expect(@client2.settings.endpoint)          .toBe '/forked',    'Forked client'
+    expect(@client2.settings.prefix)            .toBe 'foo.fork',   'Forked client'
+    expect(@client2.settings.headers['X-FORK']) .toBe 'bar',        'Forked client'
+    expect(@client2.settings.headers['X-FOO'])  .toBeUndefined      'Forked client'
 
-  it '#withSource', ->
-    @client = new LibratoClient
-      endpoint: '/original'
-      prefix: 'foo'
-      source: 'browser'
-      headers:
-        'X-FOO': 'bar'
+  describe 'fork methods', ->
 
-    @client2 = @client.withSource('version')
+    beforeEach ->
+      @client = new LibratoClient
+        endpoint: '/original'
+        prefix: 'foo'
+        source: 'browser'
+        headers:
+          'X-FOO': 'bar'
 
-    expect(@client.endpoint)           .toBe '/original',  'Original client'
-    expect(@client.prefix)             .toBe 'foo',        'Original client'
-    expect(@client.source)             .toBe 'browser',    'Original client'
-    expect(@client.headers['X-FOO'])   .toBe 'bar',        'Original client'
-    expect(@client.headers['X-FORK'])  .toBeUndefined      'Original client'
+    afterEach ->
+      expect(@client.settings.endpoint)           .toBe '/original',  'Original client'
+      expect(@client.settings.prefix)             .toBe 'foo',        'Original client'
+      expect(@client.settings.source)             .toBe 'browser',    'Original client'
+      expect(@client.settings.headers['X-FOO'])   .toBe 'bar',        'Original client'
+      expect(@client.settings.headers['X-FORK'])  .toBeUndefined      'Original client'
 
-    expect(@client2.endpoint)           .toBe '/original',  'New source client'
-    expect(@client2.prefix)             .toBe 'foo',        'New source client'
-    expect(@client2.source)             .toBe 'version',    'New source client'
-    expect(@client2.headers['X-FOO'])   .toBe 'bar',        'New source client'
-    expect(@client2.headers['X-FORK'])  .toBeUndefined      'New source client'
+
+    it '#source', ->
+      @client2 = @client.source('bar')
+      expect(@client2.settings.endpoint)           .toBe '/original',  'New source client'
+      expect(@client2.settings.prefix)             .toBe 'foo',        'New source client'
+      expect(@client2.settings.metric)             .toBeNull           'New source client'
+      expect(@client2.settings.source)             .toBe 'bar',        'New source client'
+      expect(@client2.settings.headers['X-FOO'])   .toBe 'bar',        'New source client'
+      expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New source client'
+
+    it '#metric', ->
+      @client2 = @client.metric('foo.bar')
+      expect(@client2.settings.endpoint)           .toBe '/original',  'New metric client'
+      expect(@client2.settings.prefix)             .toBe 'foo',        'New metric client'
+      expect(@client2.settings.metric)             .toBe 'foo.bar',    'New metric client'
+      expect(@client2.settings.source)             .toBe 'browser',    'New metric client'
+      expect(@client2.settings.headers['X-FOO'])   .toBe 'bar',        'New metric client'
+      expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New metric client'
+
+    it '#prefix', ->
+      @client2 = @client.prefix('ui')
+      expect(@client2.settings.endpoint)           .toBe '/original',  'New prefix client'
+      expect(@client2.settings.prefix)             .toBe 'ui',         'New prefix client'
+      expect(@client2.settings.metric)             .toBeNull           'New prefix client'
+      expect(@client2.settings.source)             .toBe 'browser',    'New prefix client'
+      expect(@client2.settings.headers['X-FOO'])   .toBe 'bar',        'New prefix client'
+      expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New prefix client'
+
+    it '#headers', ->
+      @client2 = @client.headers({'X-BAR': 'foo'})
+      expect(@client2.settings.endpoint)           .toBe '/original',  'New headers client'
+      expect(@client2.settings.prefix)             .toBe 'foo',        'New headers client'
+      expect(@client2.settings.metric)             .toBeNull           'New headers client'
+      expect(@client2.settings.source)             .toBe 'browser',    'New headers client'
+      expect(@client2.settings.headers['X-BAR'])   .toBe 'foo',        'New headers client'
+      expect(@client2.settings.headers['X-FOO'])   .toBeUndefined      'New headers client'
+      expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New headers client'
+
+    it '#endpoint', ->
+      @client2 = @client.source('version')
+      expect(@client2.settings.endpoint)           .toBe '/original',  'New source client'
+      expect(@client2.settings.prefix)             .toBe 'foo',        'New source client'
+      expect(@client2.settings.metric)             .toBeNull           'New source client'
+      expect(@client2.settings.source)             .toBe 'version',    'New source client'
+      expect(@client2.settings.headers['X-FOO'])   .toBe 'bar',        'New source client'
+      expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New source client'
+
   it '#prepare', ->
     data =
       metric: 'foo'
@@ -102,27 +148,38 @@ describe 'LibratoClient', ->
     beforeEach ->
       sinon.stub(@client, 'send')
 
-    it '#increment', ->
-      @client.increment 'foo'
-      @client.increment 'foo', 5
-      @client.increment 'foo', source: 'bar', value: 5
+    describe '#increment', ->
+      it 'with args', ->
+        @client.increment 'foo'
+        @client.increment 'foo', 5
+        @client.increment 'foo', source: 'bar', value: 5
 
-      expect(@client.send.args.length).toBe 3
+        expect(@client.send.args.length).toBe 3
 
-      expect(@client.send.args[0][0].metric) .toBe 'foo'
-      expect(@client.send.args[0][0].type)   .toBe 'increment'
-      expect(@client.send.args[0][0].value)  .toBe 1
-      expect(@client.send.args[0][0].source) .toBeUndefined()
+        expect(@client.send.args[0][0].metric) .toBe 'foo'
+        expect(@client.send.args[0][0].type)   .toBe 'increment'
+        expect(@client.send.args[0][0].value)  .toBe 1
+        expect(@client.send.args[0][0].source) .toBeUndefined()
 
-      expect(@client.send.args[1][0].metric) .toBe 'foo'
-      expect(@client.send.args[1][0].type)   .toBe 'increment'
-      expect(@client.send.args[1][0].value)  .toBe 5
-      expect(@client.send.args[1][0].source) .toBeUndefined()
+        expect(@client.send.args[1][0].metric) .toBe 'foo'
+        expect(@client.send.args[1][0].type)   .toBe 'increment'
+        expect(@client.send.args[1][0].value)  .toBe 5
+        expect(@client.send.args[1][0].source) .toBeUndefined()
 
-      expect(@client.send.args[2][0].metric) .toBe 'foo'
-      expect(@client.send.args[2][0].type)   .toBe 'increment'
-      expect(@client.send.args[2][0].value)  .toBe 5
-      expect(@client.send.args[2][0].source) .toBe 'bar'
+        expect(@client.send.args[2][0].metric) .toBe 'foo'
+        expect(@client.send.args[2][0].type)   .toBe 'increment'
+        expect(@client.send.args[2][0].value)  .toBe 5
+        expect(@client.send.args[2][0].source) .toBe 'bar'
+
+      it 'without args', ->
+        @client.increment()
+
+        expect(@client.send.args.length).toBe 1
+
+        expect(@client.send.args[0][0].metric) .toBeUndefined()
+        expect(@client.send.args[0][0].type)   .toBe 'increment'
+        expect(@client.send.args[0][0].value)  .toBe 1
+        expect(@client.send.args[0][0].source) .toBeUndefined()
 
     it '#measure', ->
       @client.measure 'foo', 5

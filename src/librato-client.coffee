@@ -4,10 +4,13 @@ Instruments = require('./instruments.coffee')
 
 class LibratoClient
   constructor: (opts={}) ->
-    @endpoint        = opts.endpoint   ? '/'
-    @prefix          = opts.prefix     ? null
-    @headers         = opts.headers    ? {}
-    @source          = opts.source     ? 'page'
+    { endpoint = '/'
+    , prefix   = null
+    , headers  = {}
+    , metric   = null
+    , source   = null } = opts
+
+    @settings = { endpoint, prefix, headers, metric, source }
 
     @sources = new Sources()
 
@@ -18,16 +21,18 @@ class LibratoClient
 
   # Methods for sending data
   prepare: (data) ->
-    data.metric = compact([@prefix, data.metric]).join '.'
-    data.source = @sources.createSource(@source, data.source)
+    { prefix, source } = @settings
+    data.metric = compact([prefix, data.metric]).join '.'
+    data.source = @sources.createSource(source, data.source)
     data
 
   send: (data) ->
+    { endpoint, headers } = @settings
     json = JSON.stringify(@prepare(data))
     xhr = @xhr()
-    xhr.open('POST', @endpoint, true)
+    xhr.open('POST', endpoint, true)
     xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.setRequestHeader(header, value) for header, value of @headers
+    xhr.setRequestHeader(header, value) for header, value of headers
     xhr.send(json)
     @
 
@@ -38,18 +43,15 @@ class LibratoClient
   # Helpful if you want to change the source template for a particular
   # instrumentation, e.g. error exceptions
   fork: (opts={}) ->
-    settings    = { @endpoint, @prefix, @headers, @source }
+    { endpoint, prefix, headers, source, metric } = @settings
+    settings    = { endpoint, prefix, headers, source, metric }
     settings[k] = v for k, v of opts
     new LibratoClient(settings)
 
-  # Easily switches the source template tag
-  # e.g. trackByBrowser = client.withSource('browser.version')
-  # e.g. client.withSource('browser.version').increment 'foo'
-  withSource: (source) ->
-    @fork source: source
-
-  # Adds data for the callback that creates a source tag.
-  sourceArg: ->
-    @sources.addTagArg.apply(@sources, arguments)
+  source: (source)     -> @fork { source }
+  metric: (metric)     -> @fork { metric }
+  prefix: (prefix)     -> @fork { prefix }
+  headers: (headers)   -> @fork { headers }
+  endpoint: (endpoint) -> @fork { endpoint }
 
 module.exports = LibratoClient
