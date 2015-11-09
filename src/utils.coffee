@@ -28,6 +28,9 @@ Utils =
   isFunction: (fn) ->
     typeof fn is 'function'
 
+  isString: (string) ->
+    typeof string is 'string'
+
   isNumber: (number) ->
     ( typeof number is 'number' and
       not isNaN(number) )

@@ -1,4 +1,8 @@
-{ curry, isNumber, isEmpty, isFunction } = require('./utils.coffee')
+{ curry
+, isNumber
+, isEmpty
+, isString
+, isFunction } = require('./utils.coffee')
 
 createRequest = (type, metric, opts, defaultValue) ->
   { source, value = defaultValue } = toOptions(opts)
