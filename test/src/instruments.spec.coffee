@@ -10,7 +10,10 @@ describe 'Instruments', ->
     @increment = -> Instruments.increment.apply(@, combine(results, arguments))
     @measure = -> Instruments.measure.apply(@, combine(results, arguments))
     @timing = -> Instruments.timing.apply(@, combine(results, arguments))
-    @data = curry (type, opts={}) ->
+    @data = (type, opts) ->
+      if !opts?
+        return (opts) ->
+          @data(type, opts)
       base =
         metric: 'foo'
         type: type

@@ -1,11 +1,5 @@
 toArray = (d) -> [].slice.call(d)
 
-currify = (fn, args, remaining)->
-  if remaining < 1
-    fn.apply(null, args)
-  else
-    -> currify(fn, args.slice(0, fn.length - 1).concat(toArray(arguments)), remaining - arguments.length)
-
 Utils =
 
   toArray: toArray
@@ -18,9 +12,6 @@ Utils =
       result[k] = v for k, v of object
       result
     , {}
-
-  curry: (fn) ->
-    -> currify(fn, toArray(arguments), fn.length - arguments.length)
 
   isEmpty: (object) ->
     typeof object is 'object' and Object.keys(object).length is 0

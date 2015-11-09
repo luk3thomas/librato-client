@@ -6,7 +6,6 @@ describe 'Utils', ->
   beforeEach ->
     { @toArray
     , @compact
-    , @curry
     , @isEmpty
     , @isFunction
     , @isNumber
@@ -25,14 +24,6 @@ describe 'Utils', ->
     expect(@compact([1, 0]))         .toEqual [1, 0]
     expect(@compact([1, null]))      .toEqual [1]
     expect(@compact([1, undefined])) .toEqual [1]
-
-  it '#curry', ->
-    fn = @curry (a, b, c) -> a + b + c
-    expect(fn(1, 2, 3)) .toBe 6
-    expect(fn(1)(2, 3)) .toBe 6
-    expect(fn(1)(2)(3)) .toBe 6
-    expect(fn(1, 2)(3)) .toBe 6
-    expect(fn(1)(2, 3)) .toBe 6
 
   it '#isEmpty', ->
     expect(@isEmpty({}))   .toBe true
