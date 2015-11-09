@@ -1,5 +1,4 @@
-{ curry
-, isNumber
+{ isNumber
 , isEmpty
 , isString
 , isFunction } = require('./utils.coffee')

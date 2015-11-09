@@ -1,5 +1,5 @@
 Instruments = require('../../src/instruments.coffee')
-{ curry } = require('../../src/utils.coffee')
+curry = require('curry')
 sinon = require('sinon')
 
 describe 'Instruments', ->
@@ -10,7 +10,7 @@ describe 'Instruments', ->
     @increment = -> Instruments.increment.apply(@, combine(results, arguments))
     @measure = -> Instruments.measure.apply(@, combine(results, arguments))
     @timing = -> Instruments.timing.apply(@, combine(results, arguments))
-    @data = (type, opts) ->
+    @data = curry (type, opts) ->
       if !opts?
         return (opts) ->
           @data(type, opts)
