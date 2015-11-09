@@ -17,27 +17,8 @@ describe 'Sources', ->
   describe 'tags', ->
 
     beforeEach ->
-      sinon.stub(@sources, 'pathname')
-
       @expectPage = (path, expectation, message) ->
-        @sources.pathname.returns(path)
         expect(@sources.createSource('page')).toBe expectation, message
-
-    it 'page', ->
-      @expectPage('/s/spaces/1',            'space',          'Single space')
-      @expectPage('/s/spaces/1/',           'space',          'Single space trailing slash')
-      @expectPage('/s/spaces/1/sd',         'space',          'Single space jank')
-      @expectPage('/s/spaces',              'spaces',         'Spaces index')
-      @expectPage('/s/spaces/',             'spaces',         'Spaces index trailing slash')
-      @expectPage('/s/metrics',             'metrics',        'Metrics index')
-      @expectPage('/s/metrics/',            'metrics',        'Metrics index trailing slash')
-      @expectPage('/s/metrics/foo',         'metric',         'Single metrics')
-      @expectPage('/s/metrics/foo/',        'metric',         'Single metrics trailing slash')
-      @expectPage('/s/metrics/foo/asdf',    'metric',         'Single metrics jank')
-      @expectPage('/s/spaces/1/explore/1',  'space-explore',  'Explore view')
-      @expectPage('/s/spaces/1/explore/1/', 'space-explore',  'Explore view, trailing slash')
-      @expectPage('/s/public/sdfdfb',       'public',         'Public view')
-      @expectPage('/s/public/sdfdfb/',      'public',         'Public view, trailing slash')
 
     it 'browser, version, platform', ->
       expect(@sources.createSource('browser.version.platform')).toBe 'chrome.45.mac'
