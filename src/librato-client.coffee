@@ -17,8 +17,8 @@ class LibratoClient
 
   # Methods for sending data
   prepare: (data) ->
-    { prefix, source } = @settings
-    data.metric = compact([prefix, data.metric]).join '.'
+    { prefix, metric, source } = @settings
+    data.metric = compact([prefix, metric, data.metric]).join '.'
     data.source = @sources.createSource(source, data.source)
     data
 
@@ -44,6 +44,5 @@ class LibratoClient
   increment: -> Instruments.increment.apply @, combineArray([@send], arguments)
   measure:   -> Instruments.measure.apply   @, combineArray([@send], arguments)
   timing:    -> Instruments.timing.apply    @, combineArray([@send], arguments)
-
 
 module.exports = LibratoClient

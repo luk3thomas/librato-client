@@ -21,6 +21,7 @@ describe 'LibratoClient', ->
       type: 'increment'
 
     @client = @client.endpoint('/tmp')
+                     .metric('bazzer')
     @client.send(data)
 
     expect(XHR.xhr().open.args.length) .toBe 1
@@ -31,6 +32,12 @@ describe 'LibratoClient', ->
     expect(XHR.xhr().setRequestHeader.args.length) .toBe 1
     expect(XHR.xhr().setRequestHeader.args[0][0])  .toBe 'Content-Type'
     expect(XHR.xhr().setRequestHeader.args[0][1])  .toBe 'application/json'
+
+    json = JSON.parse XHR.xhr().send.args[0][0]
+    expect(json.metric) .toBe 'bazzer.foo', 'prepends base metric'
+    expect(json.source) .toBe 'bar'
+    expect(json.value)  .toBe 1
+    expect(json.type)   .toBe 'increment'
 
     @client = @client.headers {'X-TOKEN': 'foo'}
     @client.send(data)
