@@ -19,13 +19,16 @@ Instruments =
   increment: (fn, metric, opts={}) ->
     fn.call @, createRequest('increment', metric, opts, 1)
 
-  measure: curry (fn, metric, opts={}) ->
+  measure: (fn, metric, opts={}) ->
+    if !isString(metric)
+      opts   = metric
+      metric = null
+    else if isEmpty(opts)
+      return (opts={}) ->
+        fn.call @, createRequest('measure', metric, opts, 0)
+
     fn.call @, createRequest('measure', metric, opts, 0)
 
-  # TODO allow second param to be a function, like so
-  # window.onload = librato.timing 'foo', (e) ->
-  #   # This callback is executed onload and the timing measure is sent on
-  #   # completion
   timing: (fn, metric, opts={}) ->
     self = @
     start = +new Date()

@@ -182,15 +182,54 @@ describe 'LibratoClient', ->
         expect(@client.send.args[0][0].value)  .toBe 1
         expect(@client.send.args[0][0].source) .toBeUndefined()
 
-    it '#measure', ->
-      @client.measure 'foo', 5
+    describe '#measure', ->
+      it 'without metric', ->
+        @client.measure 5
+        @client.measure value: 3, source: 'bar'
 
-      expect(@client.send.args.length).toBe 1
+        expect(@client.send.args.length).toBe 2
 
-      expect(@client.send.args[0][0].metric) .toBe 'foo'
-      expect(@client.send.args[0][0].type)   .toBe 'measure'
-      expect(@client.send.args[0][0].value)  .toBe 5
-      expect(@client.send.args[0][0].source) .toBeUndefined()
+        expect(@client.send.args[0][0].metric) .toBeNull()
+        expect(@client.send.args[0][0].type)   .toBe 'measure'
+        expect(@client.send.args[0][0].value)  .toBe 5
+        expect(@client.send.args[0][0].source) .toBeUndefined()
+
+        expect(@client.send.args[1][0].metric) .toBeNull()
+        expect(@client.send.args[1][0].type)   .toBe 'measure'
+        expect(@client.send.args[1][0].value)  .toBe 3
+        expect(@client.send.args[1][0].source) .toBe 'bar'
+
+      it 'with metric', ->
+        @client.measure 'foo', 5
+        @client.measure 'foo', value: 3, source: 'bar'
+
+        expect(@client.send.args.length).toBe 2
+
+        expect(@client.send.args[0][0].metric) .toBe 'foo'
+        expect(@client.send.args[0][0].type)   .toBe 'measure'
+        expect(@client.send.args[0][0].value)  .toBe 5
+        expect(@client.send.args[0][0].source) .toBeUndefined()
+
+        expect(@client.send.args[1][0].metric) .toBe 'foo'
+        expect(@client.send.args[1][0].type)   .toBe 'measure'
+        expect(@client.send.args[1][0].value)  .toBe 3
+        expect(@client.send.args[1][0].source) .toBe 'bar'
+
+      it 'is curryable', ->
+        client = @client.measure 'foo'
+
+        client 5
+        client value: 3, source: 'bar'
+
+        expect(@client.send.args[0][0].metric) .toBe 'foo'
+        expect(@client.send.args[0][0].type)   .toBe 'measure'
+        expect(@client.send.args[0][0].value)  .toBe 5
+        expect(@client.send.args[0][0].source) .toBeUndefined()
+
+        expect(@client.send.args[1][0].metric) .toBe 'foo'
+        expect(@client.send.args[1][0].type)   .toBe 'measure'
+        expect(@client.send.args[1][0].value)  .toBe 3
+        expect(@client.send.args[1][0].source) .toBe 'bar'
 
     describe '#timing', (done) ->
 

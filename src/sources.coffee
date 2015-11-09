@@ -37,7 +37,7 @@ class Sources
   #   source: 'browser.version.platform'
   # would become
   #   source: 'chrome.45.mac'
-  createSource: (placeholder, override) ->
+  createSource: (placeholder='', override) ->
     return override if override?
     placeholder.split('.')
       .map (tag) =>
