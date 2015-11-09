@@ -13,6 +13,7 @@ class LibratoClient
 
     @settings = { endpoint, prefix, headers, metric, source }
 
+    # TODO make this a function
     @sources = new Sources()
 
   # Methods for sending data
