@@ -13,43 +13,6 @@ describe 'LibratoClient', ->
   afterEach ->
     XHR.xhr.restore()
 
-  it '#send', ->
-    data =
-      metric: 'foo'
-      source: 'bar'
-      value: 1
-      type: 'increment'
-
-    @client = @client.endpoint('/tmp')
-                     .metric('bazzer')
-    @client.send(data)
-
-    expect(XHR.xhr().open.args.length) .toBe 1
-    expect(XHR.xhr().open.args[0][0])  .toBe 'POST'
-    expect(XHR.xhr().open.args[0][1])  .toBe '/tmp'
-    expect(XHR.xhr().open.args[0][2])  .toBe true
-
-    expect(XHR.xhr().setRequestHeader.args.length) .toBe 1
-    expect(XHR.xhr().setRequestHeader.args[0][0])  .toBe 'Content-Type'
-    expect(XHR.xhr().setRequestHeader.args[0][1])  .toBe 'application/json'
-
-    json = JSON.parse XHR.xhr().send.args[0][0]
-    expect(json.metric) .toBe 'bazzer.foo', 'prepends base metric'
-    expect(json.source) .toBe 'bar'
-    expect(json.value)  .toBe 1
-    expect(json.type)   .toBe 'increment'
-
-    @client = @client.headers {'X-TOKEN': 'foo'}
-    @client.send(data)
-
-    expect(XHR.xhr().setRequestHeader.args.length) .toBe 3
-    expect(XHR.xhr().setRequestHeader.args[1][0])  .toBe 'Content-Type',     'With custom headers'
-    expect(XHR.xhr().setRequestHeader.args[1][1])  .toBe 'application/json', 'With custom headers'
-    expect(XHR.xhr().setRequestHeader.args[2][0])  .toBe 'X-TOKEN',          'With custom headers'
-    expect(XHR.xhr().setRequestHeader.args[2][1])  .toBe 'foo',              'With custom headers'
-
-    expect(@client.send(data) instanceof LibratoClient).toBe true, 'Chains to self'
-
   it '#fork', ->
     @client = new LibratoClient
       endpoint: '/original'
@@ -68,7 +31,7 @@ describe 'LibratoClient', ->
     expect(@client.settings.headers['X-FOO'])   .toBe 'bar',        'Original client'
     expect(@client.settings.headers['X-FORK'])  .toBeUndefined      'Original client'
 
-    expect(@client2).not               .toBe @client,      'Forked client'
+    expect(@client2).not                        .toBe @client,      'Forked client'
     expect(@client2.settings.endpoint)          .toBe '/forked',    'Forked client'
     expect(@client2.settings.prefix)            .toBe 'foo.fork',   'Forked client'
     expect(@client2.settings.headers['X-FORK']) .toBe 'bar',        'Forked client'
@@ -138,23 +101,9 @@ describe 'LibratoClient', ->
       expect(@client2.settings.headers['X-FOO'])   .toBe 'bar',        'New source client'
       expect(@client2.settings.headers['X-FORK'])  .toBeUndefined      'New source client'
 
-  it '#prepare', ->
-    data =
-      metric: 'foo'
-      source: 'bar'
-      value: 1
-      type: 'increment'
-
-    prepared = @client.prepare(data)
-
-    expect(prepared.metric) .toBe 'foo',       'Default options'
-    expect(prepared.source) .toBe 'bar',       'Default options'
-    expect(prepared.type)   .toBe 'increment', 'Default options'
-    expect(prepared.value)  .toBe 1,           'Default options'
-
   describe 'instrumentation', ->
     beforeEach ->
-      sinon.stub(@client, 'send')
+      sinon.stub(@client.sender, 'send')
 
     describe '#increment', ->
       it 'with args', ->
@@ -162,65 +111,73 @@ describe 'LibratoClient', ->
         @client.increment 'foo', 5
         @client.increment 'foo', source: 'bar', value: 5
 
-        expect(@client.send.args.length).toBe 3
+        expect(@client.sender.send.args.length).toBe 3
 
-        expect(@client.send.args[0][0].metric) .toBe 'foo'
-        expect(@client.send.args[0][0].type)   .toBe 'increment'
-        expect(@client.send.args[0][0].value)  .toBe 1
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'increment'
+        expect(value)  .toBe 1
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[1][0].metric) .toBe 'foo'
-        expect(@client.send.args[1][0].type)   .toBe 'increment'
-        expect(@client.send.args[1][0].value)  .toBe 5
-        expect(@client.send.args[1][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[1][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'increment'
+        expect(value)  .toBe 5
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[2][0].metric) .toBe 'foo'
-        expect(@client.send.args[2][0].type)   .toBe 'increment'
-        expect(@client.send.args[2][0].value)  .toBe 5
-        expect(@client.send.args[2][0].source) .toBe 'bar'
+        { metric, type, value, source } = @client.sender.send.args[2][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'increment'
+        expect(value)  .toBe 5
+        expect(source) .toBe 'bar'
 
       it 'without args', ->
         @client.increment()
 
-        expect(@client.send.args.length).toBe 1
+        expect(@client.sender.send.args.length).toBe 1
 
-        expect(@client.send.args[0][0].metric) .toBeUndefined()
-        expect(@client.send.args[0][0].type)   .toBe 'increment'
-        expect(@client.send.args[0][0].value)  .toBe 1
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBeUndefined()
+        expect(type)   .toBe 'increment'
+        expect(value)  .toBe 1
+        expect(source) .toBeUndefined()
 
     describe '#measure', ->
       it 'without metric', ->
         @client.measure 5
         @client.measure value: 3, source: 'bar'
 
-        expect(@client.send.args.length).toBe 2
+        expect(@client.sender.send.args.length).toBe 2
 
-        expect(@client.send.args[0][0].metric) .toBeNull()
-        expect(@client.send.args[0][0].type)   .toBe 'measure'
-        expect(@client.send.args[0][0].value)  .toBe 5
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBeNull()
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 5
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[1][0].metric) .toBeNull()
-        expect(@client.send.args[1][0].type)   .toBe 'measure'
-        expect(@client.send.args[1][0].value)  .toBe 3
-        expect(@client.send.args[1][0].source) .toBe 'bar'
+        { metric, type, value, source } = @client.sender.send.args[1][0]
+        expect(metric) .toBeNull()
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 3
+        expect(source) .toBe 'bar'
 
       it 'with metric', ->
         @client.measure 'foo', 5
         @client.measure 'foo', value: 3, source: 'bar'
 
-        expect(@client.send.args.length).toBe 2
+        expect(@client.sender.send.args.length).toBe 2
 
-        expect(@client.send.args[0][0].metric) .toBe 'foo'
-        expect(@client.send.args[0][0].type)   .toBe 'measure'
-        expect(@client.send.args[0][0].value)  .toBe 5
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 5
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[1][0].metric) .toBe 'foo'
-        expect(@client.send.args[1][0].type)   .toBe 'measure'
-        expect(@client.send.args[1][0].value)  .toBe 3
-        expect(@client.send.args[1][0].source) .toBe 'bar'
+        { metric, type, value, source } = @client.sender.send.args[1][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 3
+        expect(source) .toBe 'bar'
 
       it 'is curryable', ->
         client = @client.measure 'foo'
@@ -228,15 +185,17 @@ describe 'LibratoClient', ->
         client 5
         client value: 3, source: 'bar'
 
-        expect(@client.send.args[0][0].metric) .toBe 'foo'
-        expect(@client.send.args[0][0].type)   .toBe 'measure'
-        expect(@client.send.args[0][0].value)  .toBe 5
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 5
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[1][0].metric) .toBe 'foo'
-        expect(@client.send.args[1][0].type)   .toBe 'measure'
-        expect(@client.send.args[1][0].value)  .toBe 3
-        expect(@client.send.args[1][0].source) .toBe 'bar'
+        { metric, type, value, source } = @client.sender.send.args[1][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'measure'
+        expect(value)  .toBe 3
+        expect(source) .toBe 'bar'
 
     describe '#timing', (done) ->
 
@@ -244,27 +203,30 @@ describe 'LibratoClient', ->
         @client.timing 'foo', 5
         @client.timing 'foo', value: 10, source: 'baz'
 
-        expect(@client.send.args.length).toBe 2
+        expect(@client.sender.send.args.length).toBe 2
 
-        expect(@client.send.args[0][0].metric) .toBe 'foo'
-        expect(@client.send.args[0][0].type)   .toBe 'timing'
-        expect(@client.send.args[0][0].value)  .toBe 5
-        expect(@client.send.args[0][0].source) .toBeUndefined()
+        { metric, type, value, source } = @client.sender.send.args[0][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'timing'
+        expect(value)  .toBe 5
+        expect(source) .toBeUndefined()
 
-        expect(@client.send.args[1][0].metric) .toBe 'foo'
-        expect(@client.send.args[1][0].type)   .toBe 'timing'
-        expect(@client.send.args[1][0].value)  .toBe 10
-        expect(@client.send.args[1][0].source) .toBe 'baz'
+        { metric, type, value, source } = @client.sender.send.args[1][0]
+        expect(metric) .toBe 'foo'
+        expect(type)   .toBe 'timing'
+        expect(value)  .toBe 10
+        expect(source) .toBe 'baz'
 
       it 'async with metric', (done) ->
         timer = @client.timing 'async'
 
         setTimeout =>
           timer()
-          expect(@client.send.args[0][0].metric) .toBe 'async'
-          expect(@client.send.args[0][0].type)   .toBe 'timing'
-          expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
-          expect(@client.send.args[0][0].source) .toBeUndefined()
+          { metric, type, value, source } = @client.sender.send.args[0][0]
+          expect(metric) .toBe 'async'
+          expect(type)   .toBe 'timing'
+          expect(value)  .toBeGreaterThan 29
+          expect(source) .toBeUndefined()
           done()
         , 30
 
@@ -272,10 +234,11 @@ describe 'LibratoClient', ->
         @client.timing 'async', (d) =>
           setTimeout =>
             d()
-            expect(@client.send.args[0][0].metric) .toBe 'async'
-            expect(@client.send.args[0][0].type)   .toBe 'timing'
-            expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
-            expect(@client.send.args[0][0].source) .toBeUndefined()
+            { metric, type, value, source } = @client.sender.send.args[0][0]
+            expect(metric) .toBe 'async'
+            expect(type)   .toBe 'timing'
+            expect(value)  .toBeGreaterThan 29
+            expect(source) .toBeUndefined()
             done()
           , 30
 
@@ -283,9 +246,10 @@ describe 'LibratoClient', ->
         @client.timing (d) =>
           setTimeout =>
             d()
-            expect(@client.send.args[0][0].metric) .toBeUndefined()
-            expect(@client.send.args[0][0].type)   .toBe 'timing'
-            expect(@client.send.args[0][0].value)  .toBeGreaterThan 29
-            expect(@client.send.args[0][0].source) .toBeUndefined()
+            { metric, type, value, source } = @client.sender.send.args[0][0]
+            expect(metric) .toBeUndefined()
+            expect(type)   .toBe 'timing'
+            expect(value)  .toBeGreaterThan 29
+            expect(source) .toBeUndefined()
             done()
           , 30
