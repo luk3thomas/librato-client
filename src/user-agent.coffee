@@ -1,13 +1,8 @@
 UAParser = require('ua-parser-js')
 
-class UserAgent
-  constructor: (ua) ->
-    @ua = ua
-    @parser = new UAParser(@ua)
-
-  # Need to set the UA string for testing
-  setUA: (ua) ->
-    @parser.setUA(ua)
+UserAgent =
+  getUA: ->
+    navigator.userAgent
 
   normalizeName: (name) ->
     (name or '')
@@ -21,11 +16,12 @@ class UserAgent
 
   # Returns the browser, version, and platform for a userAgent string.
   parseUserAgent: ->
-    result = @parser.getResult()
+    ua     = UserAgent.getUA()
+    result = new UAParser(ua).getResult()
 
     browser  = (result.browser.name or '').toLowerCase()
-    version  = @normalizeVersion(result.browser.version)
-    platform = @normalizeName(result.os.name)
+    version  = UserAgent.normalizeVersion(result.browser.version)
+    platform = UserAgent.normalizeName(result.os.name)
 
     { browser, version, platform }
 

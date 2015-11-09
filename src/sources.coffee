@@ -1,10 +1,10 @@
 { toArray } = require('./utils.coffee')
 UserAgent = require('./user-agent.coffee')
+{ parseUserAgent } = require('./user-agent.coffee')
 
 class Sources
 
   constructor: ->
-    @userAgent = new UserAgent()
 
     # A map of custom args to tag names. Useful if you want to build the source
     # from information supplied in a callback. window.onerror is a good example
@@ -21,9 +21,9 @@ class Sources
           .replace /^(\w+)s\/.+/,               '$1'     # metric /s/metrics/foo
           .replace /^([^\/]+).*/,               '$1'     # Keep first pathname, e.g. /s/public/adb3h32
           .replace /\/$/,                       ''       # remove trailing slash
-      browser:  -> @userAgent.parseUserAgent().browser
-      version:  -> @userAgent.parseUserAgent().version
-      platform: -> @userAgent.parseUserAgent().platform
+      browser:  -> UserAgent.parseUserAgent().browser
+      version:  -> UserAgent.parseUserAgent().version
+      platform: -> UserAgent.parseUserAgent().platform
 
   pathname: ->
     location.pathname

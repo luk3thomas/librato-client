@@ -4,7 +4,7 @@ sinon = require('sinon')
 describe 'UserAgent', ->
 
   beforeEach ->
-    @userAgent = new UserAgent()
+    sinon.stub(UserAgent, 'getUA')
     @ua =
       chrome: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
       firefox: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0'
@@ -19,7 +19,11 @@ describe 'UserAgent', ->
       android: 'Mozilla/5.0 (Linux; Android 5.1.1; Nexus 5 Build/LMY48B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/43.0.2357.65 Mobile Safari/537.36'
 
     @result = (ua) ->
-      new UserAgent(ua).parseUserAgent()
+      UserAgent.getUA.returns(ua)
+      UserAgent.parseUserAgent()
+
+  afterEach ->
+    UserAgent.getUA.restore()
 
 
   it 'parses ua string', ->
@@ -37,12 +41,11 @@ describe 'UserAgent', ->
     expect(@result(@platform.android)) .toEqual browser: 'chrome', version: '43', platform: 'android'
 
   it '#normalizeName', ->
-    @userAgent = new UserAgent()
-    expect(@userAgent.normalizeVersion('45.03483.3403.3')).toBe '45'
-    expect(@userAgent.normalizeVersion()).toBe '', 'Handles undefined'
+    expect(UserAgent.normalizeVersion('45.03483.3403.3')).toBe '45'
+    expect(UserAgent.normalizeVersion()).toBe '', 'Handles undefined'
 
     # Edge cases from https://github.com/faisalman/ua-parser-js
-    expect(@userAgent.normalizeName('Mac OS'))         .toBe 'mac'
-    expect(@userAgent.normalizeName('[Phone/Mobile]')) .toBe 'phone'
-    expect(@userAgent.normalizeName('OS/2'))           .toBe 'os'
-    expect(@userAgent.normalizeName()).toBe '', 'Handles undefined'
+    expect(UserAgent.normalizeName('Mac OS'))         .toBe 'mac'
+    expect(UserAgent.normalizeName('[Phone/Mobile]')) .toBe 'phone'
+    expect(UserAgent.normalizeName('OS/2'))           .toBe 'os'
+    expect(UserAgent.normalizeName()).toBe '', 'Handles undefined'

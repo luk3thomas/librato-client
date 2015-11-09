@@ -1,11 +1,15 @@
 Sources = require('../../src/sources.coffee')
+UserAgent = require('../../src/user-agent.coffee')
 sinon = require('sinon')
 
 describe 'Sources', ->
 
   beforeEach ->
     @sources = new Sources()
-    @sources.userAgent.setUA 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
+    sinon.stub(UserAgent, 'getUA').returns 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
+
+  afterEach ->
+    UserAgent.getUA.restore()
 
   it '#createSource', ->
     expect(@sources.createSource('browser.version.user_id')).toBe 'chrome.45.user_id', 'static string is okay'
