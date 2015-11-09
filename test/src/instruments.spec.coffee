@@ -7,13 +7,13 @@ describe 'Instruments', ->
   beforeEach ->
     combine = (a, b) -> [a].concat([].slice.call(b))
     results = (v) -> v
-    @increment = -> Instruments.increment.apply(@, combine(results, arguments))
-    @measure = -> Instruments.measure.apply(@, combine(results, arguments))
-    @timing = -> Instruments.timing.apply(@, combine(results, arguments))
+    @sender =
+      send: (v) -> v
+    instruments = new Instruments(@sender)
+    @increment = -> instruments.increment.apply(instruments, arguments)
+    @measure = -> instruments.measure.apply(instruments, arguments)
+    @timing = -> instruments.timing.apply(instruments, arguments)
     @data = curry (type, opts) ->
-      if !opts?
-        return (opts) ->
-          @data(type, opts)
       base =
         metric: 'foo'
         type: type

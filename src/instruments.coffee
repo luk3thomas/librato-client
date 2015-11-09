@@ -13,22 +13,28 @@ toOptions = (opts={}) ->
   else
     opts
 
-Instruments =
+class Instruments
 
-  increment: (fn, metric, opts={}) ->
-    fn.call @, createRequest('increment', metric, opts, 1)
+  constructor: (sender) ->
+    @sender = sender
 
-  measure: (fn, metric, opts={}) ->
+  instrument: (type, metric, opts, defaultValue) ->
+    @sender.send createRequest(type, metric, opts, defaultValue)
+
+  increment: (metric, opts={}) ->
+    @instrument 'increment', metric, opts, 1
+
+  measure: (metric, opts={}) ->
+    self = @
     if !isString(metric)
       opts   = metric
       metric = null
     else if isEmpty(opts)
       return (opts={}) ->
-        fn.call @, createRequest('measure', metric, opts, 0)
+        self.instrument 'measure', metric, opts, 0
+    @instrument 'measure', metric, opts, 0
 
-    fn.call @, createRequest('measure', metric, opts, 0)
-
-  timing: (fn, metric, opts={}) ->
+  timing: (metric, opts={}) ->
     self = @
     start = +new Date()
 
@@ -41,17 +47,17 @@ Instruments =
         callback = opts
       done = (opts={}) ->
         end = +new Date()
-        fn.call(self, createRequest('timing', metric, opts, end - start))
+        self.instrument 'timing', metric, opts, end - start
       callback.call(null, done)
 
     # with a metric name and opts
     else if not isEmpty(opts) and metric?
-      fn.call @, createRequest('timing', metric, opts, 0)
+      @instrument 'timing', metric, opts, 0
 
     # with a metric name only
     else if isEmpty(opts) and metric?
       (opts={}) ->
         end = +new Date()
-        fn.call(self, createRequest('timing', metric, opts, end - start))
+        self.instrument 'timing', metric, opts, end - start
 
 module.exports = Instruments

@@ -11,8 +11,9 @@ class LibratoClient
     , metric   = null
     , source   = null } = opts
 
-    @settings = { endpoint, prefix, headers, metric, source }
-    @sender   = new Sender(@)
+    @settings    = { endpoint, prefix, headers, metric, source }
+    @sender      = new Sender(@)
+    @instruments = new Instruments(@sender)
 
   # Fork methods for updating the client's settings
   fork: (opts={}) ->
@@ -25,8 +26,8 @@ class LibratoClient
   endpoint: (endpoint) -> @fork { endpoint }
 
   # Instrumentation methods
-  increment: -> Instruments.increment.apply @, combineArray([@sender.send], arguments)
-  measure:   -> Instruments.measure.apply   @, combineArray([@sender.send], arguments)
-  timing:    -> Instruments.timing.apply    @, combineArray([@sender.send], arguments)
+  timing:    -> @instruments.timing.apply @instruments, arguments
+  measure:   -> @instruments.measure.apply @instruments, arguments
+  increment: -> @instruments.increment.apply @instruments, arguments
 
 module.exports = LibratoClient
