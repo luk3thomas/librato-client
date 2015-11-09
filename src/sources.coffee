@@ -28,11 +28,6 @@ class Sources
   pathname: ->
     location.pathname
 
-  # Adds parameters to the tag callbacks. Helpful if you want to dynamically
-  # create a source from a veriable e.g. error reporting
-  addTagArg: ->
-    @ARGS_MAP[arguments[0]] = toArray(arguments).slice(1)
-
   # Creates a dynamic source from placeholder variables. e.g.
   #   source: 'browser.version.platform'
   # would become
@@ -42,10 +37,7 @@ class Sources
     placeholder.split('.')
       .map (tag) =>
         if fn = @TAGS[tag]
-          if args = @ARGS_MAP[tag]
-            fn.apply(@, args)
-          else
-            fn.call(@)
+          fn.call(@)
         else
           tag
       .join '.'
