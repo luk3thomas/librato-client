@@ -9,8 +9,7 @@ describe 'Utils', ->
     , @isEmpty
     , @isFunction
     , @isNumber
-    , @extend
-    , @combineArray } = Utils
+    , @extend } = Utils
 
   it '#toArray', ->
     expect(@toArray(arguments)) .toEqual []
@@ -46,9 +45,6 @@ describe 'Utils', ->
     expect(@isNumber(true))  .toBe false
     expect(@isNumber({}))    .toBe false
     expect(@isNumber([]))    .toBe false
-
-  it '#combineArray', ->
-    expect(@combineArray([1], [2])).toEqual [1, 2]
 
   it '#extend', ->
     a  = a: 1

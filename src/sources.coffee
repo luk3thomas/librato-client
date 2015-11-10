@@ -1,4 +1,3 @@
-{ toArray } = require('./utils.coffee')
 UserAgent = require('./user-agent.coffee')
 { parseUserAgent } = require('./user-agent.coffee')
 

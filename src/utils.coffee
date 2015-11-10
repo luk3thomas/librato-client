@@ -26,9 +26,4 @@ Utils =
     ( typeof number is 'number' and
       not isNaN(number) )
 
-  combineArray: ->
-    toArray(arguments).reduce (result, array) ->
-      result.concat(toArray(array))
-    , []
-
 module.exports = Utils

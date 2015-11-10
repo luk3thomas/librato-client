@@ -1,5 +1,5 @@
 { post } = require('./xhr.coffee')
-{ compact, combineArray, extend } = require('./utils.coffee')
+{ extend } = require('./utils.coffee')
 Sender = require('./sender.coffee')
 Instruments = require('./instruments.coffee')
 
