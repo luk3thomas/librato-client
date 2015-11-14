@@ -32,7 +32,7 @@ class Instruments
 
   measure: (metric, opts={}) ->
     self = @
-    if !isString(metric)
+    if not isString(metric)
       opts   = metric
       metric = null
     else if isEmpty(opts)
@@ -54,12 +54,16 @@ class Instruments
       done = createTimingCallback(self, metric, start)
       callback.call(null, done)
 
-    # with a metric name and opts
+    # with a metric name with an explicit value
     else if not isEmpty(opts) and metric?
       @instrument 'timing', metric, opts, 0
 
-    # with a metric name only
-    else if isEmpty(opts) and metric?
-      createTimingCallback(self, metric, start)
+    else if isEmpty(opts)
+      # with an explicit value
+      if not isString(metric)
+        @instrument 'timing', undefined, metric, 0
+      # with a callback
+      else
+        createTimingCallback(self, metric, start)
 
 module.exports = Instruments

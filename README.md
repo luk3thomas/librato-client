@@ -285,6 +285,10 @@ You may explicitely send a timing measure directly.
 librato.timing('foo.timing', 2314);                           // metric=foo, value=2314, source=
 librato.timing('foo.timing', { value: 2314 });                // metric=foo, value=2314, source=
 librato.timing('foo.timing', { value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
+
+librato.metric('foo').timing(2314);                           // metric=foo, value=2314, source=
+librato.metric('foo').timing({ value: 2314 });                // metric=foo, value=2314, source=
+librato.metric('foo').timing({ value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
 ```
 
 You may partially evaluate a timing measure and send automatically calculate
@@ -295,21 +299,31 @@ window.onload = librato.timing('window.onload')      // metric=window.onload, va
 ```
 
 You may partially evaluate a timing measure and send send the time explicitly.
+The next time the timer is invoked it will calculate the time difference in
+milliseconds and send it to the endpoint.
+
+Invoking with a promise:
 
 ```javascript
-foo = librato.metric('foo')
-timer = foo.timing('time')
+done = librato.metric('foo').timing('time');
 
-// FIXME
-getFoos = function() {
-  getAsync().then(timer).then
-}
-foo.timing('time', 324)                                       // metric=foo, value=324, source=
+getAsync().then(done);                               // metric=foo.time,  value=231
 ```
 
-You may time a callback function. The first parameter in the callback function
-is a callback. Invoke the callback method when you are finished timing and
-ready to send the timing measurement.
+Invoking as a callback:
+
+```javascript
+// or as a callback
+done = librato.metric('foo').timing('time');
+
+getAsync(function(results) {
+  doSomething(results);
+  done();                                            // metric=foo.time,  value=231
+});
+```
+
+You may also time blocks of code.  The first parameter is a function `done`.
+When you invoke `done` the timing instrument will send metrics to `/collect`.
 
 ```javascript
 librato.timing('foo', function(done){
@@ -318,23 +332,4 @@ librato.timing('foo', function(done){
     done();                                          // metric=foo, value=1432, source=
   });
 });
-```
-
-You may also omit the metric and call the timing instrument with a value or a
-function as the second parameter. It is helpful to use this strategy when you
-are measuring several related metrics in the same location.
-
-```javascript
-// Cloning foos
-function Foo() {
-  this.librato = librato.metric('foo');
-}
-
-Foo.prototype.all = function() {
-  return Things.all();
-}
-
-Foo.prototype.clone = function() {
-  this.librato.increment('count')          // metric=foo.count, value=1, source=
-}
 ```
