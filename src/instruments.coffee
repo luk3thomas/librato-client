@@ -7,6 +7,12 @@ createRequest = (type, metric, opts, defaultValue) ->
   { source, value = defaultValue } = toOptions(opts)
   { type, metric, source, value }
 
+createTimingCallback = (context, metric, start) ->
+  (value) ->
+    end = +new Date()
+    context.instrument 'timing', metric, {}, end - start
+    value
+
 toOptions = (opts={}) ->
   if isNumber(opts)
     value: opts
@@ -45,9 +51,7 @@ class Instruments
         metric = undefined
       else
         callback = opts
-      done = (opts={}) ->
-        end = +new Date()
-        self.instrument 'timing', metric, opts, end - start
+      done = createTimingCallback(self, metric, start)
       callback.call(null, done)
 
     # with a metric name and opts
@@ -56,8 +60,6 @@ class Instruments
 
     # with a metric name only
     else if isEmpty(opts) and metric?
-      (opts={}) ->
-        end = +new Date()
-        self.instrument 'timing', metric, opts, end - start
+      createTimingCallback(self, metric, start)
 
 module.exports = Instruments

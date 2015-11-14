@@ -1,4 +1,5 @@
 LibratoClient = require('../../src/librato-client.coffee')
+Promise = require('bluebird')
 XHR = require('../../src/xhr.coffee')
 sinon = require('sinon')
 
@@ -229,6 +230,36 @@ describe 'LibratoClient', ->
           expect(source) .toBeUndefined()
           done()
         , 30
+
+      it 'async with metric and source and value', (done) ->
+        timer = @client.timing 'async'
+
+        setTimeout =>
+          timer({ source: 'bar', value: 400 })
+          { metric, type, value, source } = @client.sender.send.args[0][0]
+          expect(metric) .toBe 'async'
+          expect(type)   .toBe 'timing'
+          expect(value)  .not.toBe 400
+          expect(source) .not.toBe 'bar'
+          done()
+        , 30
+
+      it 'works with promises', (done) ->
+        timer = @client.timing 'async'
+
+        promise = new Promise (resolve, reject) ->
+          resolve(20)
+
+        promise
+          .then(timer)
+          .then (number) =>
+            expect(number).toBe 20
+            { metric, type, value, source } = @client.sender.send.args[0][0]
+            expect(metric) .toBe 'async'
+            expect(type)   .toBe 'timing'
+            expect(value)  .toBeLessThan 20
+            expect(source) .toBeUndefined()
+            done()
 
       it 'async with callback and metric', (done) ->
         @client.timing 'async', (d) =>

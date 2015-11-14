@@ -3,10 +3,17 @@
   "version": "0.0.1",
   "description": "Send metrics from the browser to Librato",
   "main": "lib/librato-client.js",
-  "scripts": {},
+  "scripts": {
+    "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
+    "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
+    "prepublish": "npm run compile",
+    "compile": "./node_modules/.bin/webpack",
+    "start": "./node_modules/.bin/webpack -w"
+  },
   "author": "Luke Thomas",
   "license": "ISC",
   "devDependencies": {
+    "bluebird": "^3.0.5",
     "coffee-loader": "0.7.2",
     "coffee-script": "1.10.0",
     "curry": "^1.2.0",
@@ -18,13 +25,6 @@
     "phantomjs": "^1.9.18",
     "sinon": "github:cjohansen/Sinon.JS#b672042043517b9f84e14ed0fb8265126168778a",
     "webpack": "1.12.3"
-  },
-  "scripts": {
-    "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
-    "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
-    "prepublish": "npm run compile",
-    "compile": "./node_modules/.bin/webpack",
-    "start": "./node_modules/.bin/webpack -w"
   },
   "dependencies": {
     "ua-parser-js": "0.7.9"
