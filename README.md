@@ -5,13 +5,19 @@ time any event and submit it to Librato for graphing and alerts.
 
 ## Getting Started
 
+The LibratoClient is a frontend, JavaScript library designed to report metrics
+from your UI to a server side [collection
+agent](https://www.librato.com/product/collection-agents). You'll need to
+configure your server side collection agent to send the actual metrics to
+Librato.
+
 1. Create a server route for collecting UI metrics
 2. Setup LibratoClient in your frontend application
 
-
 ### Create the server side route
 
-The LibratoClient sends a JSON payload that looks something like this:
+The LibratoClient sends a JSON payload with four keys: `type`, `metric`,
+`source`, and `value`. The payload will look something like this:
 
 ```
 { type: 'timing',
@@ -20,15 +26,12 @@ The LibratoClient sends a JSON payload that looks something like this:
   value: 1342 }
 ```
 
-Now let's create a route handler that extracts data from the payload,
-repackages it, and submits it to Librato using one of our collector agents.
-Let's assume we're using Ruby on Rails and we're using
-[librato-rails](http://github.com/librato/librato-rails).
+First, create a route handler that extracts data from the payload, and submits
+it to Librato.  Let's assume we're using Ruby on Rails and we're using the
+[librato-rails](http://github.com/librato/librato-rails) collection agent.
 
-We'll need to route an endpoint e.g. `/collect` to a route handler that submits
+We'll need to route an endpoint, `/collect` to a route handler that submits
 our UI metrics to Librato.
-
-The route looks something like this:
 
 ```ruby
 Rails.application.routes.draw do
@@ -36,7 +39,8 @@ Rails.application.routes.draw do
 end
 ```
 
-The controller will look something like this:
+The UI client sends a rather generic payload. In our route handler we'll
+repackage the data and submit it to the appropriate Librato instrument.
 
 ```ruby
 class CollectionController < ApplicationController
@@ -63,8 +67,8 @@ end
 
 ### Setup LibratoClient in your frontend application
 
-Create the librato client somewhere near to the beginning of the page. The
-librato client library is small.
+Now that we created a route we can add LibratoClient to our UI. Create the
+librato client somewhere near to the beginning of the page.
 
 ```javascript
 librato = new LibratoClient({
@@ -87,8 +91,12 @@ When `window.onload` invokes the timer it will POST the following payload to our
 { type: 'timing',
   metric: 'ui.window.onload',
   source: 'mac.chrome.46',
-  value: 30 }
+  value: 986 }
 ```
+
+That's it!
+
+### Advanced Example
 
 The LibratoClient works well in a component based archetectiure. For example
 let's assume we have a modal. In the modal we are able to send a message. There
@@ -102,7 +110,7 @@ are a few things we want to measure with our new modal.
 
 ```javascript
 function MessageModal() {
-  this.librato   = librato.metric('modal.message');
+  this.librato   = librato.metric('modal.message');  // Sets the base metrics to `modal.message`
   this.messenger = new Messenger()
 }
 
@@ -111,6 +119,7 @@ MessageModal.prototype = {
   open: function() {
     // Open the modal ...
 
+    // Count when the modal opens
     this.librato.increment('toggle', { source: 'open' });
 
     /* Would send this payload to /collect:
@@ -124,6 +133,7 @@ MessageModal.prototype = {
   close: function() {
     // Close the modal ...
 
+    // Count when the modal closes
     this.librato.increment('toggle', { source: 'close' });
 
     /* Would send this payload to /collect:
@@ -137,6 +147,7 @@ MessageModal.prototype = {
   submit: function(message) {
     this.messenger.send(message)
 
+      // Time how long it takes to submit a message
       .then(librato.timing('time'))
       /* If the request is successful our timer will send the following payload
        * to the server:
@@ -146,15 +157,19 @@ MessageModal.prototype = {
        *    value: 435 }
        */
 
-      .catch(librato.increment('submit.error'))
-      /* If the request is unsuccessful our incrementer will send the following payload
-       * to the server:
-       *  { type: 'increment',
-       *    metric: 'ui.modal.message.submit.error',
-       *    source: 'mac.chrome.46',
-       *    value: 1 }
-       */
+      .catch(function() {
 
+        // Count if the user wasn't able to send a message
+        librato.increment('submit.error')
+        /* If the request is unsuccessful our incrementer will send the
+         * following payload to the server:
+         *  { type: 'increment',
+         *    metric: 'ui.modal.message.submit.error',
+         *    source: 'mac.chrome.46',
+         *    value: 1 } */
+      })
+
+      // Measure the length of the message
       .finally(function(){
         librato.measure('length', message.length);
         /* Under any condition we'll send the message length to the server.
@@ -169,39 +184,11 @@ MessageModal.prototype = {
 };
 ```
 
-### Configuring and forking the client
+## Instruments
 
-The librato client can update and change its configuration at any time. A new
-client is returned each time the settings are modified. Invoking `metric` or
-`source` does not mutate the original settings of your librato client instance.
-
-You can think of the `metric` method as a base metric. Sometimes it is helpful
-to categorize metric names. For example, if we had both AWS EC2 and AWS ELB
-metrics we'd use `AWS` as a metric base.
-
-    AWS.EC2.CPUUtilization
-    AWS.ELB.CPUUtilization
-
-```javascript
-librato.metric('foo').increment('bar');   // metric=foo.bar, value=1
-librato.metric('foo').increment();        // metric=foo,     value=1
-```
-
-You'll have to save the returned client if you want to use it with any of the
-new settings.
-
-```javascript
-tracker = librato.metric('foo')
-tracker.increment('bar')                  // metric=foo.bar, value=1
-librato.increment('bar')                  // metric=bar,     value=1
-tracker === librato                       // false
-```
-
-
-We have a several types of instruments: `increment`, `measure`, and `timing`.
-The LibratoClient is flexible and these insruments may be invoked in various
+The LibratoClient has three instruments `increment`, `measure`, and `timing`.
+All instruments are very flexible and are able to be used in several different
 ways.
-
 
 ### Increment
 
@@ -246,7 +233,7 @@ If you simply want to increment by one you can pass the increment instrument to
 a callback. The increment count is collected when the callback is invoked.
 
 ```javascript
-successCount = librato.metric('foo.count')
+successCount = librato.metric('foo.success.count')
 errorCount   = librato.metric('foo.error.count')
 
 SomePromise().then(doSomething)
@@ -257,15 +244,23 @@ SomePromise().then(doSomething)
 
 ### Measure
 
-You may use any of the following strategies to measure a metric.
+The measure instrument is similar to the increment instrument except it expects
+a value in the second parameter.
 
 ```javascript
-librato.measure('foo', 5);                           // metric=foo, value=5, source=
-librato.measure('foo', { value: 5 });                // metric=foo, value=5, source=
-librato.measure('foo', { value: 5, source: 'bar' }); // metric=foo, value=5, source=bar
+librato.measure('foo', 5);                                    // metric=foo, value=5, source=
+librato.measure('foo', { value: 5 });                         // metric=foo, value=5, source=
+librato.measure('foo', { value: 5, source: 'bar' });          // metric=foo, value=5, source=bar
+
+librato.metric('foo').measure(5);                             // metric=foo, value=5, source=
+librato.metric('foo').measure({ value: 5 });                  // metric=foo, value=5, source=
+librato.metric('foo').measure({ value: 5, source: 'bar' });   // metric=foo, value=5, source=bar
 ```
 
-#### curry
+The measure method is also curryable. You can all the measure method with a
+metric name, and then you may call it a second time with the value. The measure
+instrument will not send data to the endpoint until it has both a metric and a
+value.
 
 ```javascript
 foo = librato.measure('foo')
@@ -276,26 +271,12 @@ foo.measure(8)                   // metric=foo, value=8, source=
 
 ### Timing
 
-The timing instrument collects a timing measure. You may use the timing
-instrument in various ways.
-
-You may explicitely send a timing measure directly.
+The timing instrument collects a timing measure. You may partially evaluate a
+timing measure and send automatically calculate the time.
 
 ```javascript
-librato.timing('foo.timing', 2314);                           // metric=foo, value=2314, source=
-librato.timing('foo.timing', { value: 2314 });                // metric=foo, value=2314, source=
-librato.timing('foo.timing', { value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
-
-librato.metric('foo').timing(2314);                           // metric=foo, value=2314, source=
-librato.metric('foo').timing({ value: 2314 });                // metric=foo, value=2314, source=
-librato.metric('foo').timing({ value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
-```
-
-You may partially evaluate a timing measure and send automatically calculate
-the time.
-
-```javascript
-window.onload = librato.timing('window.onload')      // metric=window.onload, value=1432, source=
+window.onload = librato.timing('window.onload')                 // metric=window.onload, value=1432, source=
+window.onload = librato.source.('foo').timing('window.onload')  // metric=window.onload, value=1432, source=foo
 ```
 
 You may partially evaluate a timing measure and send send the time explicitly.
@@ -322,7 +303,7 @@ getAsync(function(results) {
 });
 ```
 
-You may also time blocks of code.  The first parameter is a function `done`.
+You may also time blocks of code. The first parameter is a function `done`.
 When you invoke `done` the timing instrument will send metrics to `/collect`.
 
 ```javascript
@@ -333,3 +314,51 @@ librato.timing('foo', function(done){
   });
 });
 ```
+
+You may explicitely send a timing measure directly.
+
+```javascript
+librato.timing('foo.timing', 2314);                           // metric=foo, value=2314, source=
+librato.timing('foo.timing', { value: 2314 });                // metric=foo, value=2314, source=
+librato.timing('foo.timing', { value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
+
+librato.metric('foo').timing(2314);                           // metric=foo, value=2314, source=
+librato.metric('foo').timing({ value: 2314 });                // metric=foo, value=2314, source=
+librato.metric('foo').timing({ value: 2314, source: 'bar' }); // metric=foo, value=2314, source=bar
+```
+
+
+### Configuring and forking the client
+
+The librato client can update and change its configuration at any time. A new
+client is returned each time the settings are modified. Invoking `metric` or
+`source` does not mutate the original settings of your librato client instance.
+
+You can think of the `metric` method as a base metric. Sometimes it is helpful
+to categorize metric names. For example, if we had both AWS EC2 and AWS ELB
+metrics we'd use `AWS` as a metric base.
+
+    AWS.EC2.CPUUtilization
+    AWS.ELB.CPUUtilization
+
+```javascript
+librato.metric('foo').increment('bar');   // metric=foo.bar, value=1
+librato.metric('foo').increment();        // metric=foo,     value=1
+```
+
+You'll have to save the returned client if you want to use it with any of the
+new settings.
+
+```javascript
+tracker = librato.metric('foo')
+tracker.increment('bar')                  // metric=foo.bar, value=1
+librato.increment('bar')                  // metric=bar,     value=1
+tracker === librato                       // false
+```
+
+
+We have a several types of instruments: `increment`, `measure`, and `timing`.
+The LibratoClient is flexible and these insruments may be invoked in various
+ways.
+
+
