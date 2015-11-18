@@ -6,8 +6,7 @@ module.exports = {
     ]
   },
   output: {
-    filename: 'librato-client.js',
-    path: 'lib'
+    filename: 'index.js',
   },
   resolve: {
     extensions: ['', '.coffee', '.js'],

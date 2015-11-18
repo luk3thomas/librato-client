@@ -1,8 +1,8 @@
 {
   "name": "librato-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Send metrics from the browser to Librato",
-  "main": "lib/librato-client.js",
+  "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
     "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
