@@ -6,7 +6,9 @@ module.exports = {
     ]
   },
   output: {
-    filename: 'index.js',
+    filename: 'lib/librato-client.js',
+    library: 'LibratoClient',
+    libraryTarget: 'umd'
   },
   resolve: {
     extensions: ['', '.coffee', '.js'],
