@@ -1,7 +1,6 @@
 LibratoClient = require('../../src/librato-client.coffee')
 Promise = require('bluebird')
 XHR = require('../../src/xhr.coffee')
-sinon = require('sinon')
 
 describe 'LibratoClient', ->
   beforeEach ->

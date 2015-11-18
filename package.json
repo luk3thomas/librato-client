@@ -23,7 +23,8 @@
     "karma-phantomjs-launcher": "0.2.1",
     "karma-webpack": "1.7.0",
     "phantomjs": "^1.9.18",
-    "sinon": "github:cjohansen/Sinon.JS#b672042043517b9f84e14ed0fb8265126168778a",
+    "script-loader": "0.6.1",
+    "sinon": "1.17.2",
     "webpack": "1.12.3"
   },
   "dependencies": {

@@ -1,5 +1,4 @@
 XHR = require('../../src/xhr.coffee')
-sinon = require('sinon')
 
 describe 'XHR', ->
 

@@ -1,5 +1,4 @@
 Utils = require('../../src/utils.coffee')
-sinon = require('sinon')
 
 describe 'Utils', ->
 

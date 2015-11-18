@@ -1,4 +1,3 @@
-sinon = require('sinon')
 { extend } = require('../../src/utils.coffee')
 LibratoClient = require('../../src/librato-client.coffee')
 Sender = require('../../src/sender.coffee')
