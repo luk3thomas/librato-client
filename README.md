@@ -1,6 +1,6 @@
 ## Librato Client
 
-[![Build Status](https://travis-ci.org/luk3thomas/librato-client.svg)](https://travis-ci.org/luk3thomas/librato-client)
+[![NPM Package Stats](https://nodei.co/npm/librato-client.png)](https://www.npmjs.org/package/librato-client) [![Build Status](https://travis-ci.org/luk3thomas/librato-client.svg)](https://travis-ci.org/luk3thomas/librato-client)
 
 Analyze your frontend UI with LibratoClient. You can easily count, measure or
 time any event and submit it to Librato for graphing and alerts.
