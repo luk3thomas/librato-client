@@ -1,5 +1,7 @@
 ## Librato Client
 
+[![Build Status](https://travis-ci.org/luk3thomas/librato-client.svg)](https://travis-ci.org/luk3thomas/librato-client)
+
 Analyze your frontend UI with LibratoClient. You can easily count, measure or
 time any event and submit it to Librato for graphing and alerts.
 
