@@ -69,8 +69,7 @@ end
 
 ### Setup LibratoClient in your frontend application
 
-Now that we created a route we can add LibratoClient to our UI. Create the
-librato client somewhere near to the beginning of the page.
+Now that we created a route we can add LibratoClient to our UI.
 
 ```javascript
 librato = new LibratoClient({
@@ -83,15 +82,15 @@ librato = new LibratoClient({
 Once we create the client we can begin using it to submit metrics to our endpoint.
 
 ```javascript
-window.onload = librato.timing('window.onload')
+librato.measure('foo')
 ```
 
 When `window.onload` invokes the timer it will POST the following payload to our
 `/collect` endpoint:
 
 ```
-{ type: 'timing',
-  metric: 'ui.window.onload',
+{ type: 'measure',
+  metric: 'ui.foo',
   source: 'mac.chrome.46',
   value: 986 }
 ```
@@ -281,6 +280,29 @@ window.onload = librato.timing('window.onload')                 // metric=window
 window.onload = librato.source.('foo').timing('window.onload')  // metric=window.onload, value=1432, source=foo
 ```
 
+In the case of a metric like `window.onload` want to measure the time from
+first byte until the page loads. One way to do this is to laod the librato
+client near the top of the page and attach a timing instrument to the callback.
+Obviously that isn't good for performance. We want to load all the scripts near
+the bottom of the document.
+
+The timing instrument has the ability to backdate the start time.
+
+In the `<head>` of the document
+
+```html
+  <script>
+    window._start = new Date();
+  </script>
+</head>
+```
+
+Then later on after we've initialized the library we can attach the listener.
+
+```javascript
+window.onload = librato.timing('window.onload', { start: window._start })    // metric=window.onload, value=1432, source=
+```
+
 You may partially evaluate a timing measure and send send the time explicitly.
 The next time the timer is invoked it will calculate the time difference in
 milliseconds and send it to the endpoint.
@@ -337,11 +359,12 @@ client is returned each time the settings are modified. Invoking `metric` or
 `source` does not mutate the original settings of your librato client instance.
 
 You can think of the `metric` method as a base metric. Sometimes it is helpful
-to categorize metric names. For example, if we had both AWS EC2 and AWS ELB
-metrics we'd use `AWS` as a metric base.
+to categorize metric names. For example, we might name our AWS EC2 metrics with
+a base prefix of `AWS.EC2`.
 
+    AWS.EC2.CPUCreditBalance
+    AWS.EC2.CPUCreditUsage
     AWS.EC2.CPUUtilization
-    AWS.ELB.CPUUtilization
 
 ```javascript
 librato.metric('foo').increment('bar');   // metric=foo.bar, value=1
@@ -357,10 +380,3 @@ tracker.increment('bar')                  // metric=foo.bar, value=1
 librato.increment('bar')                  // metric=bar,     value=1
 tracker === librato                       // false
 ```
-
-
-We have a several types of instruments: `increment`, `measure`, and `timing`.
-The LibratoClient is flexible and these insruments may be invoked in various
-ways.
-
-
