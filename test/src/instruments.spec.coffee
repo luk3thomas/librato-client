@@ -70,6 +70,30 @@ describe 'Instruments', ->
         done()
       , 30
 
+    it 'async with a back dated start time', (done) ->
+      timer = @timing 'foo', start: +(new Date()) - 15000 # 15 seconds ago
+      setTimeout =>
+        timer()
+        [ type, metric, opts, value ] = @instruments.instrument.args[0]
+        expect(type)   .toBe 'timing'
+        expect(metric) .toBe 'foo'
+        expect(opts)   .toEqual {}
+        expect(value)  .toBeGreaterThan 14999
+        done()
+      , 1
+
+    it 'async with a back dated start time and metric', (done) ->
+      timer = @timing start: +(new Date()) - 15000 # 15 seconds ago
+      setTimeout =>
+        timer()
+        [ type, metric, opts, value ] = @instruments.instrument.args[0]
+        expect(type)   .toBe 'timing'
+        expect(metric) .toBeUndefined()
+        expect(opts)   .toEqual {}
+        expect(value)  .toBeGreaterThan 14999
+        done()
+      , 1
+
     it 'async with callback', (done) ->
       @timing 'foobar', (d) =>
         setTimeout =>

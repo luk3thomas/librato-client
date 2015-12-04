@@ -56,11 +56,17 @@ class Instruments
 
     # with a metric name with an explicit value
     else if not isEmpty(opts) and metric?
-      @instrument 'timing', metric, opts, 0
+      if opts.start?
+        createTimingCallback(self, metric, opts.start)
+      else
+        @instrument 'timing', metric, opts, 0
 
     else if isEmpty(opts)
+      # with a callback
+      if typeof metric is 'object' and metric.start?
+        createTimingCallback(self, undefined, metric.start)
       # with an explicit value
-      if not isString(metric)
+      else if not isString(metric)
         @instrument 'timing', undefined, metric, 0
       # with a callback
       else
