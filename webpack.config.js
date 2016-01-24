@@ -2,7 +2,11 @@ module.exports = {
   entry: './src/librato-client.coffee',
   module: {
     loaders: [
-      { loader: 'coffee', test: /\.coffee$/ }
+      { loader: 'coffee', test: /\.coffee$/ },
+      { loader: 'babel?presets[]=es2015'
+      , test: /\.js$/
+      , exclude: /node_modules/
+      }
     ]
   },
   output: {

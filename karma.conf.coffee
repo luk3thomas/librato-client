@@ -13,6 +13,13 @@ module.exports = (config) ->
       module:
         loaders: [
           { test: /\.coffee$/, loader: 'coffee' }
+          { test: /.*sinon.*\.js$/, loader: 'imports?define=>false,require=>false' }
+          { test: /\.js$/
+          , loader: 'babel-loader'
+          , query:
+            compact: false
+            presets: ['es2015']
+          }
         ]
         resolve:
           extensions: ['', '.coffee', '.js'],

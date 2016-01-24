@@ -1,4 +1,5 @@
-XHR = require('../../src/xhr.coffee')
+XHR = require('../../src/xhr.js')
+sinon = require('sinon/pkg/sinon')
 
 describe 'XHR', ->
 

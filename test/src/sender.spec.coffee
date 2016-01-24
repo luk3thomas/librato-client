@@ -1,7 +1,8 @@
 { extend } = require('../../src/utils.coffee')
 LibratoClient = require('../../src/librato-client.coffee')
 Sender = require('../../src/sender.coffee')
-XHR = require('../../src/xhr.coffee')
+XHR = require('../../src/xhr.js')
+sinon = require('sinon/pkg/sinon')
 
 describe 'Sender', ->
   beforeEach ->

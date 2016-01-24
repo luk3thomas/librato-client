@@ -1,4 +1,4 @@
-{ post } = require('./xhr.coffee')
+{ post } = require('./xhr.js')
 { extend } = require('./utils.coffee')
 Sender = require('./sender.coffee')
 Instruments = require('./instruments.coffee')

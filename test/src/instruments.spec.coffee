@@ -1,6 +1,7 @@
 Instruments = require('../../src/instruments.coffee')
 Promise = require('bluebird')
 curry = require('curry')
+sinon = require('sinon/pkg/sinon')
 
 describe 'Instruments', ->
 

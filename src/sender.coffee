@@ -1,4 +1,4 @@
-{ post } = require('./xhr.coffee')
+{ post } = require('./xhr.js')
 { extend, compact } = require('./utils.coffee')
 Sources = require('./sources.coffee')
 
