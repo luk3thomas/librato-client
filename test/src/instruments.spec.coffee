@@ -1,4 +1,4 @@
-Instruments = require('../../src/instruments.coffee')
+Instruments = require('instruments')
 Promise = require('bluebird')
 curry = require('curry')
 sinon = require('sinon/pkg/sinon')

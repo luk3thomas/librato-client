@@ -1,7 +1,7 @@
-{ post } = require('./xhr.js')
-{ extend } = require('./utils.coffee')
-Sender = require('./sender.coffee')
-Instruments = require('./instruments.coffee')
+{ post } = require('xhr')
+{ extend } = require('utils')
+Sender = require('sender')
+Instruments = require('instruments')
 
 class LibratoClient
   constructor: (opts={}) ->

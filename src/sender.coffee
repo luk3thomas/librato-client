@@ -1,6 +1,6 @@
-{ post } = require('./xhr.js')
-{ extend, compact } = require('./utils.coffee')
-Sources = require('./sources.coffee')
+{ post } = require('xhr')
+{ extend, compact } = require('utils')
+Sources = require('sources')
 
 class Sender
   constructor: (@client) ->

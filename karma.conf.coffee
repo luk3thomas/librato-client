@@ -21,8 +21,9 @@ module.exports = (config) ->
             presets: ['es2015']
           }
         ]
-        resolve:
-          extensions: ['', '.coffee', '.js'],
+      resolve:
+        extensions: ['', '.coffee', '.js'],
+        modulesDirectories: ['node_modules', 'src']
 
     webpackMiddleware:
       noInfo: true

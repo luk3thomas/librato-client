@@ -1,4 +1,4 @@
-UserAgent = require('../../src/user-agent.coffee')
+UserAgent = require('user-agent')
 sinon = require('sinon/pkg/sinon')
 
 describe 'UserAgent', ->

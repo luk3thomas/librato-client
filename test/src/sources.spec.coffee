@@ -1,5 +1,5 @@
-Sources = require('../../src/sources.coffee')
-UserAgent = require('../../src/user-agent.coffee')
+Sources = require('sources')
+UserAgent = require('user-agent')
 sinon = require('sinon/pkg/sinon')
 
 describe 'Sources', ->

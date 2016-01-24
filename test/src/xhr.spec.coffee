@@ -1,4 +1,4 @@
-XHR = require('../../src/xhr.js')
+XHR = require('xhr')
 sinon = require('sinon/pkg/sinon')
 
 describe 'XHR', ->

@@ -1,13 +1,13 @@
-UserAgent = require('./user-agent.coffee')
-{ parseUserAgent } = require('./user-agent.coffee')
+UserAgent = require('user-agent')
+{ parseUserAgent } = require('user-agent')
 
 class Sources
 
   constructor: ->
     @TAGS =
-      browser:  -> UserAgent.parseUserAgent().browser
-      version:  -> UserAgent.parseUserAgent().version
-      platform: -> UserAgent.parseUserAgent().platform
+      browser:  -> parseUserAgent().browser
+      version:  -> parseUserAgent().version
+      platform: -> parseUserAgent().platform
 
   # Creates a dynamic source from placeholder variables. e.g.
   #   source: 'browser.version.platform'

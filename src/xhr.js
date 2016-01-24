@@ -1,4 +1,4 @@
-const { extend } = require('./utils.coffee');
+const { extend } = require('utils');
 
 const send = function({endpoint, method, headers, data}) {
   const xhr = XHR.xhr();
