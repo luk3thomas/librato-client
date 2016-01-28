@@ -1,4 +1,4 @@
-LibratoClient = require('librato-client.coffee')
+LibratoClient = require('librato-client')
 Promise = require('bluebird')
 XHR = require('xhr.js')
 sinon = require('sinon/pkg/sinon')

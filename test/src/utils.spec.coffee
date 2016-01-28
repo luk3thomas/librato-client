@@ -8,14 +8,15 @@ describe 'Utils', ->
     , @isEmpty
     , @isFunction
     , @isNumber
+    , @curry
     , @extend } = Utils
 
-  it '#toArray', ->
-    expect(@toArray(arguments)) .toEqual []
-    expect(@toArray(true))      .toEqual []
-    expect(@toArray({}))        .toEqual []
-    expect(@toArray('a'))       .toEqual ['a']
-    expect(@toArray(1))         .toEqual []
+  it '#curry', ->
+    sum = @curry (a, b, c) -> a + b + c
+
+    expect(sum(1, 2, 3)).toBe 6
+    expect(sum(1, 2)(3)).toBe 6
+    expect(sum(1)(2)(3)).toBe 6
 
   it '#compact', ->
     expect(@compact([1, 2]))         .toEqual [1, 2]

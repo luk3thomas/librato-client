@@ -1,4 +1,4 @@
-const { extend } = require('utils');
+import { extend } from 'utils';
 
 const send = function({endpoint, method, headers, data}) {
   const xhr = XHR.xhr();

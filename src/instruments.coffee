@@ -32,6 +32,7 @@ class Instruments
 
   measure: (metric, opts={}) ->
     self = @
+    debugger
     if not isString(metric)
       opts   = metric
       metric = null
