@@ -9,7 +9,8 @@ class Sender
 
   prepare: (data)->
     data.metric = compact([@prefix, @metric, data.metric]).join '.'
-    data.source = @sources.createSource(@source, data.source)
+    if "source" of data
+      data.source = @sources.createSource(@source, data.source)
     data
 
   send: (data) ->
