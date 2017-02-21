@@ -1,3 +1,7 @@
 language: node_js
 node_js:
 - 'stable'
+
+before_install:
+  - which phantomjs
+  - sudo curl --output /usr/local/phantomjs/bin/phantomjs https://s3.amazonaws.com/circle-downloads/phantomjs-2.1.1
