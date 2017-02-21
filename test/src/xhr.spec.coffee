@@ -1,4 +1,4 @@
-XHR = require('../../src/xhr.coffee')
+XHR = require('src/xhr')
 
 describe 'XHR', ->
 

@@ -1,33 +1,43 @@
-{ post } = require('./xhr.coffee')
-{ extend } = require('./utils.coffee')
-Sender = require('./sender.coffee')
-Instruments = require('./instruments.coffee')
+{ post } = require('src/xhr')
+{ extend } = require('src/utils')
+RequestQueue = require('src/request-queue')
+Instruments = require('src/instruments')
+UserAgent = require('src/user-agent')
 
 class LibratoClient
   constructor: (opts={}) ->
     { endpoint = '/'
     , prefix   = null
     , headers  = {}
-    , metric   = null
-    , source   = null } = opts
+    , tags     = {}
+    , flushInterval = 5000
+    , includeBrowserInfo = false
+    } = opts
 
-    @settings    = { endpoint, prefix, headers, metric, source }
-    @sender      = new Sender(@)
-    @instruments = new Instruments(@sender)
+    if includeBrowserInfo
+      tags = extend({}, tags, UserAgent.parseUserAgent())
 
-  # Fork methods for updating the client's settings
-  fork: (opts={}) ->
-    new LibratoClient(extend(@settings, opts))
+    @settings = { endpoint, prefix, headers, tags }
+    @requestQueue = new RequestQueue({ flushInterval, clientSettings: @settings })
 
-  source: (source)     -> @fork { source }
-  metric: (metric)     -> @fork { metric }
-  prefix: (prefix)     -> @fork { prefix }
-  headers: (headers)   -> @fork { headers }
-  endpoint: (endpoint) -> @fork { endpoint }
+  flush: ->
+    @requestQueue.flush()
+
+  destroy: ->
+    @requestQueue.destroy()
 
   # Instrumentation methods
-  timing:    -> @instruments.timing.apply @instruments, arguments
-  measure:   -> @instruments.measure.apply @instruments, arguments
-  increment: -> @instruments.increment.apply @instruments, arguments
+  timing:    -> instrument('timing', arguments, @requestQueue.add)
+  measure:   -> instrument('measure', arguments, @requestQueue.add)
+
+# private
+
+instrument = (type, args, done) ->
+  try
+    switch type
+      when 'timing'     then Instruments.timing({args, done})
+      when 'measure'    then Instruments.measure({args, done})
+  catch error
+    console.error "LibratoClient error", error
 
 module.exports = LibratoClient

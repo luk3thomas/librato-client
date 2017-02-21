@@ -1,6 +1,6 @@
 {
   "name": "librato-client",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "description": "Send metrics from the browser to Librato",
   "main": "lib/librato-client.js",
   "files": [ "src" ],
