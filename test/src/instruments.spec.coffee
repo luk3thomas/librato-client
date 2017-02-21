@@ -39,12 +39,6 @@ describe 'Instruments', ->
     expect(@fooBazMeasure(10))                      .toEqual @measureData(metric: 'fooBaz', value: 10)
     expect(@fooBazMeasure(source: 'bar', value: 10)).toEqual @measureData(metric: 'fooBaz', value: 10, source: 'bar')
 
-  it '#measure with tags', ->
-    @measureData = @data('measure')
-    tags = {foo: "bar"}
-    m = @measure('foo', {value: 5, tags: tags })
-    expect(m.tags.foo).toEqual 'bar', 'Specified value'
-
   describe '#timing', ->
 
     it 'with metric and value', ->

@@ -25,9 +25,3 @@ describe 'Sources', ->
       template = 'browser.version.hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
 
       expect(@sources.createSource(template).length).toBe 255, 'Error Message over 255 chars'
-
-  it '#createTags', ->
-    tags = @sources.createTags('browser.version.platform')
-    expect(tags.browser).toBe 'chrome', 'we create the broser extra tag'
-    expect(tags.version).toBe '45'    , 'we create the version extra tag'
-    expect(tags.platform).toBe 'mac'  , 'we create the platform extra tag'

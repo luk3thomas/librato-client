@@ -24,10 +24,4 @@ class Sources
       .join '.'
       .slice(0, 255)
 
-  createTags: (placeholder='') ->
-    _.reduce(placeholder.split('.'), (o_tags, tag) =>
-      o_tags[tag] = fn.call(@) if fn = @TAGS[tag]
-      o_tags
-    , {})
-
 module.exports = Sources
