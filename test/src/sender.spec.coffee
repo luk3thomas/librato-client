@@ -28,6 +28,20 @@ describe 'Sender', ->
     expect(prepared.type)   .toBe 'increment', 'Default options'
     expect(prepared.value)  .toBe 1,           'Default options'
 
+  it '#prepare with tags', ->
+    data =
+      metric: 'foo'
+      tags: {'one': 'uno'}
+      value: 1
+      type: 'increment'
+
+    prepared = @sender.prepare(data)
+
+    expect(prepared.metric)   .toBe 'foo',       'Default options'
+    expect(prepared.tags.one) .toBe 'uno',       'Default options'
+    expect(prepared.type)     .toBe 'increment', 'Default options'
+    expect(prepared.value)    .toBe 1,           'Default options'
+
   it '#send', ->
     settings =
       endpoint: '/tmp'

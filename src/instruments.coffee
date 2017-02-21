@@ -4,8 +4,13 @@
 , isFunction } = require('./utils.coffee')
 
 createRequest = (type, metric, opts, defaultValue) ->
-  { source, value = defaultValue } = toOptions(opts)
-  { type, metric, source, value }
+  norm_opts = toOptions(opts)
+  if 'tags' of norm_opts
+    { tags, value = defaultValue } = toOptions(norm_opts)
+    { type, metric, tags, value }
+  else
+    { source, value = defaultValue } = toOptions(norm_opts)
+    { type, metric, source, value }
 
 createTimingCallback = (context, metric, start) ->
   (value) ->

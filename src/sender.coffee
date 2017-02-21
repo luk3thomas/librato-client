@@ -1,6 +1,7 @@
 { post } = require('./xhr.coffee')
 { extend, compact } = require('./utils.coffee')
 Sources = require('./sources.coffee')
+_       = require 'lodash'
 
 class Sender
   constructor: (@client) ->
@@ -9,7 +10,10 @@ class Sender
 
   prepare: (data)->
     data.metric = compact([@prefix, @metric, data.metric]).join '.'
-    data.source = @sources.createSource(@source, data.source)
+    if "source" of data
+      data.source = @sources.createSource(@source, data.source)
+    if "tags" of data
+      data.tags = _.merge(data.tags, @sources.createTags(@source))
     data
 
   send: (data) ->
