@@ -1,80 +1,76 @@
 { isNumber
-, isEmpty
+, isObject
 , isString
-, isFunction } = require('./utils.coffee')
+, isUndefined
+, isFunction } = require('src/utils')
+{ TIMING_START } = require('src/constants')
 
-createRequest = (type, metric, opts, defaultValue) ->
-  norm_opts = toOptions(opts)
-  if 'tags' of norm_opts
-    { tags, value = defaultValue } = toOptions(norm_opts)
-    { type, metric, tags, value }
-  else
-    { source, value = defaultValue } = toOptions(norm_opts)
-    { type, metric, source, value }
+Instruments =
 
-createTimingCallback = (context, metric, start) ->
-  (value) ->
-    end = +new Date()
-    context.instrument 'timing', metric, {}, end - start
-    value
+  measure: ({args, done}) ->
+    [ metric, tags={}, value=1 ] = args
 
-toOptions = (opts={}) ->
-  if isNumber(opts)
-    value: opts
-  else
-    opts
+    # tags are optional
+    if isNumber(tags)
+      value = tags
+      tags = {}
 
-class Instruments
+    validateTags(tags)
+    validateValue(value)
+    validateMetric(metric)
 
-  constructor: (sender) ->
-    @sender = sender
+    done({metric, tags, type: 'measure', value})
 
-  instrument: (type, metric, opts, defaultValue) ->
-    @sender.send createRequest(type, metric, opts, defaultValue)
+  timing: ({args, done}) ->
+    [ metric, tags={}, callback ] = args
+    start = new Date()
 
-  increment: (metric, opts={}) ->
-    @instrument 'increment', metric, opts, 1
+    # tags are optional
+    if isFunction(tags)
+      callback = tags
+      tags = {}
 
-  measure: (metric, opts={}) ->
-    self = @
-    if not isString(metric)
-      opts   = metric
-      metric = null
-    else if isEmpty(opts)
-      return (opts={}) ->
-        self.instrument 'measure', metric, opts, 0
-    @instrument 'measure', metric, opts, 0
+    validateTags(tags)
+    validateMetric(metric)
+    validateCallback(callback)
 
-  timing: (metric, opts={}) ->
-    self = @
-    start = +new Date()
+    timingCallback =
+      (value) ->
+        end = new Date()
+        # Possibly backdate the start time
+        if tags[TIMING_START]
+          start = tags[TIMING_START]
+          delete tags[TIMING_START]
+        done({
+          metric,
+          tags,
+          type: 'timing',
+          value: end - start
+        })
+        value
 
-    # with a callback
-    if isFunction(opts) or isFunction(metric)
-      if isFunction(metric)
-        callback = metric
-        metric = undefined
-      else
-        callback = opts
-      done = createTimingCallback(self, metric, start)
-      callback.call(null, done)
+    if isUndefined(callback)
+      timingCallback
+    else if isFunction(callback)
+      callback.call(callback, timingCallback)
 
-    # with a metric name with an explicit value
-    else if not isEmpty(opts) and metric?
-      if opts.start?
-        createTimingCallback(self, metric, opts.start)
-      else
-        @instrument 'timing', metric, opts, 0
+# private
 
-    else if isEmpty(opts)
-      # with a callback
-      if typeof metric is 'object' and metric.start?
-        createTimingCallback(self, undefined, metric.start)
-      # with an explicit value
-      else if not isString(metric)
-        @instrument 'timing', undefined, metric, 0
-      # with a callback
-      else
-        createTimingCallback(self, metric, start)
+validateMetric = (metric) ->
+  if not isString(metric)
+    throw new TypeError("metric must be a string")
+
+validateTags = (tags) ->
+  if not isObject(tags)
+    throw new TypeError("tags must be an object")
+
+validateValue = (value) ->
+  if isNaN(value) or not isNumber(value)
+    throw new TypeError("value must be a number")
+
+validateCallback = (callback) ->
+  if callback?
+    if not isFunction(callback)
+      throw new TypeError("callback must be a function")
 
 module.exports = Instruments

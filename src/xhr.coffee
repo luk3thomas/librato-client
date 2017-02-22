@@ -1,9 +1,10 @@
-{ extend } = require('./utils.coffee')
+{ extend } = require('src/utils')
 
 send = ({endpoint, method, headers, data}) ->
   xhr = XHR.xhr()
   xhr.open(method, endpoint, true)
-  xhr.setRequestHeader(header, value) for header, value of headers
+  for header, value of headers
+    xhr.setRequestHeader(header, value)
   xhr.send(data)
 
 XHR =

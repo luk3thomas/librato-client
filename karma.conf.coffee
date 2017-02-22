@@ -1,3 +1,5 @@
+webpack = require('./webpack.config.js')
+
 module.exports = (config) ->
   config.set
     files: [
@@ -6,16 +8,13 @@ module.exports = (config) ->
 
     frameworks: ['jasmine']
 
+    webpack: webpack
+
+    logLevel: config.LOG_DEBUG
+
+    webpackMiddleware: {
+      stats: 'none'
+    }
+
     preprocessors:
       'test/tests.webpack.js': ['webpack']
-
-    webpack:
-      module:
-        loaders: [
-          { test: /\.coffee$/, loader: 'coffee' }
-        ]
-        resolve:
-          extensions: ['', '.coffee', '.js'],
-
-    webpackMiddleware:
-      noInfo: true

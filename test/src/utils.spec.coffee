@@ -1,4 +1,4 @@
-Utils = require('../../src/utils.coffee')
+Utils = require('src/utils')
 
 describe 'Utils', ->
 

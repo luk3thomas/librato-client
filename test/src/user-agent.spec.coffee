@@ -1,4 +1,4 @@
-UserAgent = require('../../src/user-agent.coffee')
+UserAgent = require('src/user-agent')
 
 describe 'UserAgent', ->
 
