@@ -1,8 +1,10 @@
+var path = require('path');
+
 module.exports = {
   entry: './src/librato-client.coffee',
   module: {
     loaders: [
-      { loader: 'coffee', test: /\.coffee$/ }
+      { loader: 'coffee-loader', test: /\.coffee$/ }
     ]
   },
   output: {
@@ -11,7 +13,9 @@ module.exports = {
     libraryTarget: 'umd'
   },
   resolve: {
-    extensions: ['', '.coffee', '.js'],
-    modulesDirectories: ['node_modules', 'src']
+    extensions: ['.coffee', '.js'],
+    alias: {
+      src: path.resolve(__dirname, 'src')
+    }
   }
 };
