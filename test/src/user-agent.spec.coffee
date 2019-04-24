@@ -37,7 +37,7 @@ describe 'UserAgent', ->
     expect(@result(@platform.mac))     .toEqual browser: 'chrome', version: '45', platform: 'mac'
     expect(@result(@platform.linux))   .toEqual browser: 'chrome', version: '34', platform: 'linux'
     expect(@result(@platform.windows)) .toEqual browser: 'ie',     version: '11', platform: 'windows'
-    expect(@result(@platform.android)) .toEqual browser: 'chrome', version: '43', platform: 'android'
+    expect(@result(@platform.android)) .toEqual browser: 'chrome webview', version: '43', platform: 'android'
 
   it '#normalizeName', ->
     expect(UserAgent.normalizeVersion('45.03483.3403.3')).toBe '45'

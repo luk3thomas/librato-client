@@ -1,9 +1,15 @@
 {
   "name": "librato-client",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Send metrics from the browser to Librato",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luk3thomas/librato-client.git"
+  },
   "main": "lib/librato-client.js",
-  "files": [ "src" ],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
     "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
@@ -19,7 +25,7 @@
     "coffee-script": "1.10.0",
     "curry": "1.2.0",
     "jasmine-core": "2.3.4",
-    "karma": "0.13.15",
+    "karma": "0.13.19",
     "karma-jasmine": "0.3.6",
     "karma-phantomjs-launcher": "0.2.1",
     "karma-webpack": "1.7.0",
@@ -29,6 +35,6 @@
     "webpack": "1.12.3"
   },
   "dependencies": {
-    "ua-parser-js": "0.7.9"
+    "ua-parser-js": "0.7.19"
   }
 }
