@@ -3,7 +3,9 @@
   "version": "0.0.7",
   "description": "Send metrics from the browser to Librato",
   "main": "lib/librato-client.js",
-  "files": [ "src" ],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
     "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
@@ -29,6 +31,6 @@
     "webpack": "1.12.3"
   },
   "dependencies": {
-    "ua-parser-js": "0.7.9"
+    "ua-parser-js": "0.7.19"
   }
 }
