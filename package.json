@@ -1,6 +1,6 @@
 {
   "name": "librato-client",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Send metrics from the browser to Librato",
   "repository": {
     "type": "git",
