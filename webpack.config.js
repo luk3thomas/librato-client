@@ -3,12 +3,13 @@ var path = require('path');
 module.exports = {
   entry: './src/librato-client.coffee',
   module: {
-    loaders: [
+    rules: [
       { loader: 'coffee-loader', test: /\.coffee$/ }
     ]
   },
   output: {
-    filename: 'lib/librato-client.js',
+    filename: 'librato-client.js',
+    path: __dirname + '/lib',
     library: 'LibratoClient',
     libraryTarget: 'umd'
   },

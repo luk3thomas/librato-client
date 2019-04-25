@@ -13,8 +13,7 @@
   "scripts": {
     "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
     "testw": "./node_modules/.bin/karma start --browsers PhantomJS",
-    "prepublish": "npm run compile",
-    "compile": "./node_modules/.bin/webpack",
+    "build": "rm -rf lib/ && webpack --mode production",
     "start": "./node_modules/.bin/webpack -w"
   },
   "author": "Luke Thomas",
@@ -32,7 +31,8 @@
     "phantomjs": "1.9.18",
     "script-loader": "0.6.1",
     "sinon": "1.17.2",
-    "webpack": "1.12.3"
+    "webpack": "^4.5.0",
+    "webpack-cli": "3.3.1"
   },
   "dependencies": {
     "lodash": "4.17.11",
